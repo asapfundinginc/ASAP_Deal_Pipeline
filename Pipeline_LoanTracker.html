@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASAP Loan Tracker</title>
+<style>
+  :root{
+    --brand:#1c75bc; --teal:#1ba3c9; --navy:#0e3f63;
+    --ink:#0e1c2b; --muted:#64768a; --line:#e4eaf0; --bg:#f4f8fb; --card:#fff;
+    --fit:#1e9e6a; --need:#c07d16; --fail:#c0392b; --comp:#c77400;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;}
+  header{background:linear-gradient(120deg,var(--navy),var(--brand));color:#fff;padding:16px 0;}
+  .bar{max-width:1860px;margin:0 auto;padding:0 16px;}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  header h1{margin:0;font-size:18px;font-weight:700;}
+  header .sub{opacity:.85;font-size:12px;margin-top:2px;}
+  .appnav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .navt{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);cursor:pointer;text-decoration:none;}
+  .navt:hover{background:rgba(255,255,255,.28);}
+  .navt.active{background:#fff;color:var(--brand);border-color:#fff;}
+  .navt.soon{opacity:.6;cursor:default;}
+  .navt .nb{background:rgba(255,255,255,.28);border-radius:999px;padding:0 7px;font-size:11px;font-weight:800;}
+  .navt.active .nb{background:#e8f1fb;color:var(--brand);}
+
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .seg button{border:none;background:#fff;padding:8px 14px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;}
+  .seg button.on{background:var(--brand);color:#fff;}
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 10px;}
+  #search{flex:1;min-width:200px;max-width:360px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:#fff;}
+  .tbtn{background:#fff;color:var(--brand);border:1px solid var(--brand);border-radius:9px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;}
+  .tbtn.solid{background:var(--brand);color:#fff;}
+  .spacer{margin-left:auto;}
+  .dchips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .dchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+  .dchip:hover{border-color:var(--brand);}
+  .dchip .n{background:#eef2f7;color:var(--ink);border-radius:999px;padding:0 7px;font-size:11px;font-weight:800;}
+  .dchip.active{color:#fff;}
+  .dchip .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+
+  .tablewrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow-x:auto;box-shadow:0 1px 2px rgba(16,40,70,.04);margin-bottom:16px;}
+  table{border-collapse:collapse;width:100%;min-width:1680px;}
+  thead th{position:sticky;top:0;background:#f7fafc;text-align:left;padding:10px 12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);border-bottom:2px solid var(--line);white-space:nowrap;z-index:2;}
+  th.num,td.num{text-align:right;}
+  tbody td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle;font-size:13px;}
+  tbody tr:hover{background:#eef6fc;}
+  tbody tr.fupast{background:#fdecec;}
+  tbody tr.fupast:hover{background:#fbdede;}
+  td.name-td{border-left:5px solid #ccc;}
+  .nm{display:flex;align-items:center;gap:8px;}
+  .nm b{color:var(--ink);}
+  .addr{color:var(--muted);max-width:190px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;}
+  td.amt{font-weight:800;}
+  td.compv{font-weight:800;color:var(--comp);text-align:right;cursor:pointer;}
+  td.compv:hover,.editcell:hover{outline:1px dashed var(--brand);outline-offset:-2px;border-radius:6px;}
+  .editcell{cursor:pointer;}
+  .dsdot{width:15px;height:15px;border-radius:50%;display:inline-block;flex:none;cursor:pointer;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.10);}
+  .dsdot:hover{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand);}
+  .cardonly{color:#41505f;cursor:help;}
+  .cardonly .lk{opacity:.38;font-size:11px;margin-left:6px;}
+  .dash{color:#aab6c2;}
+  .notes{color:#41505f;max-width:150px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;font-size:12px;}
+
+  .pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700;white-space:nowrap;cursor:pointer;border:1px dashed transparent;}
+  .pill:hover{border-color:currentColor;}
+  .pill .cv{opacity:.55;font-size:9px;}
+  .selin{font-size:12.5px;font-weight:700;padding:4px 6px;border:2px solid var(--brand);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
+  .txtin{font-size:12.5px;font-weight:700;padding:5px 7px;border:2px solid var(--brand);border-radius:8px;width:110px;}
+  .ownpill{cursor:pointer;font-weight:700;color:#3a4a59;border:1px dashed transparent;border-radius:999px;padding:2px 8px;}
+  .ownpill:hover{border-color:var(--brand);color:var(--brand);}
+
+  .acts{display:flex;gap:6px;align-items:center;}
+  .aico{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;font-weight:700;color:var(--brand);text-decoration:none;}
+  .aico:hover{background:#eef6fc;}
+
+  .fubell{cursor:default;} .fu-od{color:#c0392b;font-weight:700;} .fu-due{color:#b07d18;font-weight:700;} .fu-up{color:#9aa7b4;} .fu-res{color:#1e8c5f;font-weight:800;}
+  .fu-time{color:#5a6b7e;font-size:11.5px;font-weight:600;}
+  .fubanner{background:#fdecec;border:1px solid #f3c6c6;border-radius:10px;padding:12px 14px;margin:14px 0;}
+  .fb-top{font-size:13.5px;color:#8a2b2b;}
+  .fb-list{margin:8px 0 6px 20px;color:#7a3535;font-size:13px;}
+  .fb-list li{margin:2px 0;}
+  .fb-note{font-size:12px;color:#9a5a5a;line-height:1.5;}
+  .funone{background:#eef7f0;border:1px solid #cfe8d6;border-radius:10px;padding:10px 14px;margin:14px 0;font-size:12.5px;color:#2f7a4f;}
+
+  .fu-active{outline:2px solid var(--brand);outline-offset:-2px;}
+  .fu-back{position:fixed;inset:0;z-index:60;background:transparent;}
+  .fu-pop{position:fixed;z-index:61;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(16,40,70,.18);padding:11px;min-width:240px;}
+  .fu-pop-t{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:8px;}
+  .fu-pop-row{display:flex;gap:6px;margin-bottom:9px;}
+  .fu-pop-row input{font-size:12.5px;padding:6px 7px;border:1px solid var(--line);border-radius:7px;}
+  .fu-pop-row input[type=date]{flex:1;} .fu-pop-row input[type=time]{width:98px;}
+  .fu-pop-b{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .fu-hint{font-size:11px;color:var(--muted);}
+  .fu-btns{display:flex;gap:7px;}
+  .fu-clear{background:#fff;border:1px solid #e3b7b7;color:#b23b3b;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+  .fu-clear:hover{background:#fdecec;}
+  .fu-set{background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:7px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+  .fu-set:hover{background:#155a92;}
+
+  .summ{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-bottom:40px;}
+  @media(max-width:1000px){.summ{grid-template-columns:1fr;}}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .ph{background:#dff1f8;color:var(--navy);font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;padding:9px 14px;border-bottom:1px solid var(--line);}
+  .pstats{display:grid;grid-template-columns:repeat(4,1fr);}
+  .pstat{padding:13px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;}
+  .pstat .lab{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;line-height:1.3;}
+  .pstat .val{font-size:18px;font-weight:800;margin-top:5px;color:var(--navy);}
+  .pstat .val.comp{color:var(--comp);}
+  .mtbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .mtbl td,.mtbl th{padding:8px 14px;border-bottom:1px solid var(--line);text-align:left;}
+  .mtbl th{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.3px;background:#f7fafc;}
+  .mtbl td.num,.mtbl th.num{text-align:right;}
+  .mtbl tr.sel{background:#dff1f8;font-weight:700;}
+  .mtbl td.mc{color:var(--comp);font-weight:800;}
+
+  .colwrap{position:relative;display:inline-block;}
+  .colmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:50;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(16,40,70,.16);padding:8px;min-width:210px;}
+  .cm-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:4px 8px 8px;}
+  .cm-item{display:flex;align-items:center;gap:9px;padding:6px 8px;font-size:13px;border-radius:7px;cursor:pointer;color:var(--ink);}
+  .cm-item:hover{background:#f4f8fb;}
+  .cm-item input{width:15px;height:15px;accent-color:var(--brand);cursor:pointer;}
+  .cm-item.locked{color:#aab6c2;cursor:default;}
+  .cm-item.locked .tagx{margin-left:auto;font-size:9.5px;text-transform:uppercase;}
+  .cm-back{position:fixed;inset:0;z-index:40;background:transparent;}
+
+  .expl{background:#eef4fb;border:1px solid #cfe0f2;color:#0e3f63;border-radius:10px;padding:11px 14px;font-size:12.5px;margin:14px 0;line-height:1.55;}
+  .expl b{color:var(--navy);}
+  .viewas{font-size:12.5px;color:var(--muted);font-weight:700;display:inline-flex;align-items:center;gap:6px;}
+  .viewas select{border:1px solid var(--line);border-radius:8px;padding:5px 7px;font-weight:700;color:var(--ink);cursor:pointer;}
+  .calc-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
+  .ctab{background:#eef4fb;color:var(--brand);border:1px solid #cfe0f2;border-radius:8px;padding:9px 15px;font-size:13px;font-weight:700;cursor:pointer;}
+  .ctab:hover{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+  .state{max-width:1860px;margin:40px auto;padding:0 16px;text-align:center;color:var(--muted);}
+  .spin{width:26px;height:26px;border:3px solid #d5e2ee;border-top-color:var(--brand);border-radius:50%;animation:sp 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:10px;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0e1c2b;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .2s;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar topnav">
+    <div><h1 id="hubTitle">ASAP Loan Tracker</h1><div class="sub" id="hubSub">Deal Status = the situation · Current Status = the processing step</div></div>
+    <nav class="appnav" id="nav"></nav>
+  </div>
+</header>
+
+<div class="bar" id="app"><div class="state"><span class="spin"></span>Loading your Loan Tracker…</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var TASK_BOARD_URL = 'https://script.google.com/a/macros/asap-funding.com/s/AKfycbw-fYZIXyDK9YfCJ2ZlmDJtzig1w83T3OSoDpASxeksqUSojAnfQ5aqQKcBQ8fd9e3J/exec';
+
+var DEAL_STATUSES = ['Shopping','Planning','Secured','On Hold','Credit Repair','Nurture/Future','Dead','Funded'];
+var DS_COLOR = {'Shopping':'#1c75bc','Planning':'#5a6b7e','Secured':'#1e8c5f','On Hold':'#c07d16','Credit Repair':'#6b4bbf','Nurture/Future':'#1391b3','Dead':'#b23b3b','Funded':'#127a4f'};
+var ARCHIVED_DS = {'Dead':1,'Funded':1};
+var CUR_STATUSES = ['','Application Sent','Application Received','Pre-Approved','Waiting on Docs','Processing','Underwriting','Clear to Close'];
+var CS_COLOR = {'Application Sent':'#7c5cbf','Application Received':'#1391b3','Pre-Approved':'#1e9e6a','Waiting on Docs':'#c07d16','Processing':'#1c75bc','Underwriting':'#0e3f63','Clear to Close':'#127a4f'};
+var OWNERS = ['DK','SP'];
+function alpha(hex){ return hex+'1a'; }
+
+function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+var TODAY = todayISO();
+
+var DEALS=[], LOADED=false, HUB='';
+var SCOPE='active', DS_FILTER='all', SEARCH='', EDIT={id:null,field:null}, EDIT_POS={top:0,left:0};
+var HIDDEN={}, COLMENU=false, LOCKED={name:true,acts:true};
+
+/* ---------- data layer ---------- */
+function load(){
+  google.script.run
+    .withSuccessHandler(function(res){
+      if(res && res.ok){ DEALS=res.deals||[]; LOADED=true; render(); }
+      else { showError(res && res.error ? res.error : 'Could not load the Loan Tracker.'); }
+    })
+    .withFailureHandler(function(err){ showError((err&&err.message)?err.message:String(err)); })
+    .pipeline_getTracker();
+}
+function byId(id){ for(var i=0;i<DEALS.length;i++){ if(String(DEALS[i].id)===String(id)) return DEALS[i]; } return null; }
+function saveField(id, field, value){
+  google.script.run
+    .withSuccessHandler(function(res){ if(!res || !res.ok){ toast('Save failed: '+((res&&res.error)||'')); load(); } })
+    .withFailureHandler(function(err){ toast('Error saving — reloading.'); load(); })
+    .pipeline_saveTrackerField(id, field, value);
+}
+var _tt=null;
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'; if(_tt) clearTimeout(_tt); _tt=setTimeout(function(){ t.className='toast'; },2600); }
+function showError(msg){ document.getElementById('app').innerHTML='<div class="state">⚠ '+esc(msg)+'<br><br><button class="tbtn" onclick="location.reload()">Retry</button></div>'; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ---------- nav ---------- */
+var VIEW='tracker', BOARD_N=null, CURRENT_USER='DK';
+function renderNav(){
+  var boardHref = HUB ? (HUB+(HUB.indexOf('?')>=0?'&':'?')+'dashboard') : '#';
+  document.getElementById('nav').innerHTML =
+    '<a class="navt" href="'+boardHref+'" target="_top">▦ Pipeline'+(BOARD_N!=null?' <span class="nb">'+BOARD_N+'</span>':'')+'</a>'+
+    '<a class="navt" href="'+TASK_BOARD_URL+'" target="_blank" rel="noopener">✅ Task Board ↗</a>'+
+    '<span class="navt '+(VIEW==='tracker'?'active':'')+'" onclick="setView(\'tracker\')" style="cursor:pointer">▤ Loan Tracker <span class="nb">'+activeTracker().length+'</span></span>'+
+    '<span class="navt '+(VIEW==='crm'?'active':'')+'" onclick="setView(\'crm\')" style="cursor:pointer">👤 Contacts'+(CRM_LOADED?' <span class="nb">'+CRM.length+'</span>':'')+'</span>'+
+    '<span class="navt '+(VIEW==='calc'?'active':'')+'" onclick="setView(\'calc\')" style="cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6.5" x2="16" y2="6.5"/><circle cx="8.5" cy="11" r=".6" fill="currentColor"/><circle cx="12" cy="11" r=".6" fill="currentColor"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="8.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="12" cy="14.5" r=".6" fill="currentColor"/><circle cx="15.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="18" r=".6" fill="currentColor"/><circle cx="12" cy="18" r=".6" fill="currentColor"/><circle cx="15.5" cy="18" r=".6" fill="currentColor"/></svg> Calculators</span>';
+}
+function setView(v){ VIEW=v; render(); }
+function calcHTML(){
+  var base = HUB ? (HUB+(HUB.indexOf('?')>=0?'&':'?')+'calc=1') : '#';
+  function u(t){ return base+'&tab='+t; }
+  return '<div class="expl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6.5" x2="16" y2="6.5"/><circle cx="8.5" cy="11" r=".6" fill="currentColor"/><circle cx="12" cy="11" r=".6" fill="currentColor"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="8.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="12" cy="14.5" r=".6" fill="currentColor"/><circle cx="15.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="18" r=".6" fill="currentColor"/><circle cx="12" cy="18" r=".6" fill="currentColor"/><circle cx="15.5" cy="18" r=".6" fill="currentColor"/></svg> <b>Calculators</b> — click any calculator below to open a <b>blank</b> version of it (for walk-up scenarios). Opening a deal from the Board instead prefills the right one with that borrower\'s numbers.</div>'+
+    '<div class="calc-tabs">'+
+      '<a class="ctab" style="text-decoration:none" href="'+u('dscr')+'" target="_blank" rel="noopener">DSCR ↗</a>'+
+      '<a class="ctab" style="text-decoration:none" href="'+u('bff')+'" target="_blank" rel="noopener">Bridge / Fix &amp; Flip ↗</a>'+
+      '<a class="ctab" style="text-decoration:none" href="'+u('commercial')+'" target="_blank" rel="noopener">Commercial ↗</a>'+
+      '<a class="ctab" style="text-decoration:none" href="'+u('landdev')+'" target="_blank" rel="noopener">Land &amp; Dev ↗</a>'+
+    '</div>';
+}
+function initUrl(){
+  try{ google.script.url.getLocation(function(loc){ if(loc&&loc.parameter&&String(loc.parameter.view)==='crm'){ VIEW='crm'; if(LOADED) render(); } }); }catch(e){}
+  google.script.run.withSuccessHandler(function(u){ HUB=u||''; if(LOADED) renderNav(); }).pipeline_hubUrl();
+  google.script.run.withSuccessHandler(function(c){ BOARD_N=(c&&typeof c.board==='number')?c.board:null; if(LOADED) renderNav(); }).withFailureHandler(function(){}).pipeline_ltNavCounts();
+}
+
+/* ---------- helpers ---------- */
+function fmtDate(iso){ if(!iso) return ''; var p=iso.split('-'); return parseInt(p[1],10)+'/'+parseInt(p[2],10)+'/'+p[0]; }
+function fmtTime(t){ if(!t) return ''; var p=t.split(':'); var h=parseInt(p[0],10); var ap=h>=12?'PM':'AM'; var hh=h%12; if(hh===0)hh=12; return hh+':'+p[1]+' '+ap; }
+function monthKey(iso){ return iso?iso.slice(0,7):''; }
+function money(n){ return n==null?'':('$'+Number(n).toLocaleString()); }
+function daysBetween(a,b){ return Math.round((Date.parse(b+'T00:00:00')-Date.parse(a+'T00:00:00'))/86400000); }
+function isArchived(d){ return !!ARCHIVED_DS[d.dealStatus]; }
+function activeTracker(){ return DEALS.filter(function(d){ return !isArchived(d); }); }
+function archivedTracker(){ return DEALS.filter(isArchived); }
+function fuLevel(d){
+  if(!d.followISO || d.followResolved) return '';
+  if(d.followISO<TODAY) return 'overdue';
+  if(d.followISO===TODAY){
+    var n=new Date(); var nowHM=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+    var dueAt=d.followTime||'07:00';                    // date-only reminders come due at 7am
+    return nowHM>=dueAt ? 'due' : 'upcoming';           // nothing shows before the due moment
+  }
+  return 'upcoming';
+}
+function fuPast(d){ var l=fuLevel(d); return l==='overdue'||l==='due'; }
+
+/* ---------- columns ---------- */
+var COLS=[
+  {k:'name',label:'Borrower'},{k:'addr',label:'Property'},{k:'lt',label:'Property Type'},{k:'purpose',label:'Loan Purpose'},{k:'amt',label:'Loan Amt',num:true},
+  {k:'close',label:'Est. Close'},{k:'cs',label:'Current Status'},{k:'comp',label:'Expected Comp',num:true},
+  {k:'owner',label:'Owner'},{k:'lender',label:'Lender'},{k:'follow',label:'Follow-Up'},{k:'notes',label:'Notes'},{k:'acts',label:'Actions'}
+];
+function visibleCols(){ return COLS.filter(function(c){ return !HIDDEN[c.k]; }); }
+
+/* ---------- editable controls ---------- */
+function openEdit(id,field){ EDIT={id:id,field:field}; render(); setTimeout(function(){ var i=document.querySelector('.editing-input'); if(i){ i.focus(); if(i.select){ try{i.select();}catch(e){} } } },0); }
+function cancelEdit(){ EDIT={id:null,field:null}; render(); }
+
+function dotControl(d){
+  if(EDIT.id===d.id&&EDIT.field==='ds'){
+    var o=DEAL_STATUSES.map(function(s){return '<option'+(s===d.dealStatus?' selected':'')+'>'+s+'</option>';}).join('')+
+      '<option disabled>──────</option><option value="__delete__">Delete</option>';
+    return '<select class="selin editing-input" onchange="dsPick('+q(d.id)+',this.value)" onblur="cancelEdit()">'+o+'</select>';
+  }
+  var c=DS_COLOR[d.dealStatus]||'#888';
+  return '<span class="dsdot" style="background:'+c+'" title="Deal Status: '+esc(d.dealStatus)+' — click to change" onclick="openEdit('+q(d.id)+',\'ds\')"></span>';
+}
+function curStatusControl(d){
+  if(EDIT.id===d.id&&EDIT.field==='cs'){
+    var opts='<option value=""'+(d.currentStatus===''?' selected':'')+'>— (not processing yet)</option>'+CUR_STATUSES.filter(function(s){return s;}).map(function(s){return '<option'+(s===d.currentStatus?' selected':'')+'>'+s+'</option>';}).join('');
+    return '<select class="selin editing-input" onchange="setStatus('+q(d.id)+',\'cs\',this.value)" onblur="cancelEdit()">'+opts+'</select>';
+  }
+  if(!d.currentStatus) return '<span class="pill editcell" style="background:#f4f6f9;color:#9aa7b4" title="Blank until the deal is real. Click to set." onclick="openEdit('+q(d.id)+',\'cs\')">— <span class="cv">▾</span></span>';
+  var c=CS_COLOR[d.currentStatus]||'#1c75bc';
+  return '<span class="pill" style="background:'+alpha(c)+';color:'+c+'" title="Click to change" onclick="openEdit('+q(d.id)+',\'cs\')">'+esc(d.currentStatus)+' <span class="cv">▾</span></span>';
+}
+function ownerControl(d){
+  if(EDIT.id===d.id&&EDIT.field==='owner'){
+    var o=OWNERS.map(function(x){return '<option'+(x===d.owner?' selected':'')+'>'+x+'</option>';}).join('');
+    return '<select class="selin editing-input" onchange="setField('+q(d.id)+',\'owner\',this.value)" onblur="cancelEdit()">'+o+'</select>';
+  }
+  return '<span class="ownpill" title="Follow-up reminders go to this person — click to change" onclick="openEdit('+q(d.id)+',\'owner\')">'+esc(d.owner)+' <span class="cv">▾</span></span>';
+}
+function textControl(d,field){
+  if(EDIT.id===d.id&&EDIT.field===field){
+    var w=field==='notes'?'width:220px':'';
+    var val = field==='comp' ? (d.comp==null?'':d.comp) : (field==='points'?d.points:(field==='lender'?d.lender:d.notes));
+    var type = field==='comp' ? 'number' : 'text';
+    return '<input class="txtin editing-input" style="'+w+'" type="'+type+'" value="'+esc(val)+'" onchange="setField('+q(d.id)+',\''+field+'\',this.value)" onblur="setField('+q(d.id)+',\''+field+'\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()">';
+  }
+  return null;
+}
+function closeControl(d){
+  if(EDIT.id===d.id&&EDIT.field==='close'){
+    return '<input class="txtin editing-input" type="date" value="'+(d.closeISO||'')+'" onchange="setField('+q(d.id)+',\'close\',this.value)" onblur="cancelEdit()">';
+  }
+  return d.closeISO?fmtDate(d.closeISO):'<span class="dash">— set</span>';
+}
+function q(id){ return "'"+String(id).replace(/'/g,"\\'")+"'"; }
+
+/* set a plain field: optimistic local update + server save */
+function setField(id, field, raw){
+  var d=byId(id); if(!d){ return; }
+  var value=raw;
+  if(field==='loanAmount'){
+    var la=parseFloat(String(raw).replace(/[^0-9.]/g,''));
+    if(isNaN(la)||la<0){ toast('Enter a valid loan amount.'); cancelEdit(); return; }
+    d.loanAmount=la; value=la;
+    // Expected Comp is NOT recomputed here — it comes from the calculator (Refresh deal)
+    // or a manual override; loan-amount edits no longer touch it.
+  }
+  else if(field==='comp'){ var n=parseFloat(String(raw).replace(/[^0-9.]/g,'')); d.comp=isNaN(n)?null:n; value=(d.comp==null?'':d.comp); }
+  else if(field==='lender'){ d.lender=String(raw).trim(); value=d.lender; }
+  else if(field==='notes'){ d.notes=String(raw).trim(); value=d.notes; }
+  else if(field==='owner'){ d.owner=String(raw).trim(); value=d.owner; }
+  else if(field==='close'){ d.closeISO=String(raw||'').trim(); value=d.closeISO; }
+  EDIT={id:null,field:null};
+  saveField(id, field, value);
+  render();
+}
+/* status change also resolves the follow-up nag locally (server mirrors it) */
+function dsPick(id, value){
+  if(value==='__delete__'){ EDIT={id:null,field:null}; removeDeal(id); return; }
+  setStatus(id,'ds',value);
+}
+function setStatus(id, which, value){
+  var d=byId(id); if(!d) return;
+  if(which==='ds'){ d.dealStatus=value; d.followResolved=true; EDIT={id:null,field:null}; saveField(id,'dealStatus',value); }
+  else { d.currentStatus=value; d.followResolved=true; EDIT={id:null,field:null}; saveField(id,'currentStatus',value); }
+  render();
+}
+
+/* ---------- follow-up popover ---------- */
+function followCell(d){
+  if(!d.followISO) return '<span class="dash">— set</span>';
+  var base=fmtDate(d.followISO)+(d.followTime?' <span class="fu-time">'+fmtTime(d.followTime)+'</span>':'');
+  if(d.followResolved) return base+' <span class="fu-res" title="Resolved — nag stopped">✓</span>';
+  var lvl=fuLevel(d);
+  if(lvl==='overdue') return base+' <span class="fubell fu-od" title="Overdue">🔔</span>';
+  if(lvl==='due') return base+' <span class="fubell fu-due" title="Due today">🔔</span>';
+  return base+' <span class="fu-up" title="Upcoming">⏰</span>';
+}
+function openFollow(e,id){ var r=e.currentTarget.getBoundingClientRect(); EDIT_POS={top:Math.round(r.bottom+4),left:Math.round(r.left)}; EDIT={id:id,field:'follow'}; render(); setTimeout(function(){var i=document.getElementById('fuDate'); if(i) i.focus();},0); }
+function followPopover(){
+  if(EDIT.field!=='follow') return '';
+  var d=byId(EDIT.id); if(!d) return '';
+  var left=Math.min(EDIT_POS.left,(window.innerWidth||1200)-260);
+  return '<div class="fu-back" onmousedown="setFollow(event,'+q(d.id)+')"></div>'+
+    '<div class="fu-pop" style="top:'+EDIT_POS.top+'px;left:'+left+'px">'+
+      '<div class="fu-pop-t">Follow-up reminder</div>'+
+      '<div class="fu-pop-row"><input id="fuDate" type="date" value="'+(d.followISO||'')+'"><input id="fuTime" type="time" value="'+(d.followTime||'')+'"></div>'+
+      '<div class="fu-pop-b"><span class="fu-hint">Blank time = 7am daily</span><span class="fu-btns"><button class="fu-clear" onmousedown="clearFollow(event,'+q(d.id)+')">Clear</button><button class="fu-set" onmousedown="setFollow(event,'+q(d.id)+')">Set</button></span></div>'+
+    '</div>';
+}
+function setFollow(e,id){
+  if(e&&e.preventDefault) e.preventDefault();
+  var d=byId(id); if(!d) return;
+  var dd=document.getElementById('fuDate'), tt=document.getElementById('fuTime');
+  var iso=dd?String(dd.value||''):''; var tm=(dd&&dd.value&&tt)?String(tt.value||''):'';
+  d.followISO=iso; d.followTime=tm; d.followResolved=false;
+  EDIT={id:null,field:null};
+  saveField(id,'follow',iso);
+  saveField(id,'followTime',tm);
+  render();
+}
+function driveGo(id){
+  var d=byId(id); if(!d) return false;
+  if(d.driveFolder){ window.open(d.driveFolder,'_blank'); return false; }
+  toast('Opening this borrower\'s Drive folder\u2026');
+  google.script.run
+    .withSuccessHandler(function(res){
+      if(res&&res.ok&&res.url){ d.driveFolder=res.url; if(res.created){ toast('New folder created for this borrower.'); } window.open(res.url,'_blank'); render(); }
+      else { toast('Could not create the folder: '+((res&&res.error)||'')); }
+    })
+    .withFailureHandler(function(e){ toast('Error: '+((e&&e.message)||e)); })
+    .pipeline_ensureDriveFolder(d.id);
+  return false;
+}
+function removeDeal(id){
+  var d=byId(id); if(!d) return false;
+  if(!confirm('Remove '+(d.borrower||'this deal')+' from the Loan Tracker?\n\nThe deal stays on the Pipeline board — only the tracker row is removed.')) return false;
+  DEALS=DEALS.filter(function(x){ return String(x.id)!==String(id); });
+  google.script.run.withSuccessHandler(function(res){ if(!res||!res.ok){ toast((res&&res.error)||'Remove failed — reloading.'); load(); } })
+    .withFailureHandler(function(){ toast('Remove failed — reloading.'); load(); }).pipeline_ltRemove(id);
+  render();
+  return false;
+}
+function clearFollow(e,id){
+  if(e&&e.preventDefault) e.preventDefault();
+  var d=byId(id); if(!d) return;
+  d.followISO=''; d.followTime=''; d.followResolved=false;
+  EDIT={id:null,field:null};
+  saveField(id,'follow','');
+  render();
+}
+
+/* ---------- cells ---------- */
+function cell(d,k){
+  if(k==='name'){
+    var ct=crmForDeal(d);
+    var pIco=ct
+      ? '<a class="aico" style="padding:2px 6px" href="#" title="Open '+esc(ct.name||'contact')+'\'s conversation log" onclick="crmNotesOpen(\''+String(ct.id).replace(/'/g,"\\'")+'\');return false;">👤</a>'
+      : '<a class="aico" style="padding:2px 6px;opacity:.45" href="#" title="Create a Contact for this borrower" onclick="return crmFromDeal('+q(d.id)+')">👤+</a>';
+    return '<td class="name-td" style="border-left-color:'+(DS_COLOR[d.dealStatus]||'#888')+'"><div class="nm">'+dotControl(d)+'<b>'+esc(d.borrower||'—')+'</b>'+pIco+'</div></td>';
+  }
+  if(k==='addr') return '<td class="cardonly" title="Edited on the deal card — drives grading & Matched Lenders" >'+(d.address?'<span class="addr">'+esc(d.address)+'</span>':'<span class="dash">—</span>')+'<span class="lk">🔒</span></td>';
+  if(k==='lt')   return '<td class="cardonly" title="Edited on the deal card">'+esc(d.propertyType||d.loanType||'—')+'<span class="lk">🔒</span></td>';
+  if(k==='purpose') return '<td class="cardonly" title="Edited on the deal card">'+esc(d.purpose||'—')+'<span class="lk">🔒</span></td>';
+  if(k==='amt'){
+    if(EDIT.id===d.id&&EDIT.field==='loanAmount'){
+      return '<td class="num amt"><input class="selin editing-input" style="width:110px;text-align:right" value="'+esc(d.loanAmount||'')+'" onkeydown="if(event.key===\'Enter\'){setField('+q(d.id)+',\'loanAmount\',this.value);} if(event.key===\'Escape\'){cancelEdit();}" onblur="setField('+q(d.id)+',\'loanAmount\',this.value)"></td>';
+    }
+    return '<td class="num amt editable" title="Click to edit — grading & Matched Lenders re-run off the new amount" onclick="openEdit('+q(d.id)+',\'loanAmount\')">'+(d.loanAmount?money(d.loanAmount):'<span class="dash">—</span>')+'</td>';
+  }
+  if(k==='close')return '<td class="editcell" onclick="if(!(EDIT.id==='+q(d.id)+'&&EDIT.field===\'close\'))openEdit('+q(d.id)+',\'close\')">'+closeControl(d)+'</td>';
+  if(k==='cs')   return '<td>'+curStatusControl(d)+'</td>';
+  if(k==='comp') return '<td class="num compv" onclick="if(!(EDIT.id==='+q(d.id)+'&&EDIT.field===\'comp\'))openEdit('+q(d.id)+',\'comp\')">'+(textControl(d,'comp')||(d.comp!=null?money(d.comp):'<span class="dash">— set</span>'))+'</td>';
+  if(k==='owner')return '<td>'+ownerControl(d)+'</td>';
+  if(k==='lender')return '<td class="editcell" onclick="if(!(EDIT.id==='+q(d.id)+'&&EDIT.field===\'lender\'))openEdit('+q(d.id)+',\'lender\')">'+(textControl(d,'lender')||(d.lender?esc(d.lender):'<span class="dash">+ add</span>'))+'</td>';
+  if(k==='follow')return '<td class="editcell'+((EDIT.id===d.id&&EDIT.field==='follow')?' fu-active':'')+'" onclick="openFollow(event,'+q(d.id)+')">'+followCell(d)+'</td>';
+  if(k==='notes')return '<td class="editcell" onclick="if(!(EDIT.id==='+q(d.id)+'&&EDIT.field===\'notes\'))openEdit('+q(d.id)+',\'notes\')">'+(textControl(d,'notes')||(d.notes?'<span class="notes" title="'+esc(d.notes)+'">'+esc(d.notes)+'</span>':'<span class="dash">+ add note</span>'))+'</td>';
+  if(k==='acts'){ var bh=HUB?(HUB+(HUB.indexOf('?')>=0?'&':'?')+'dashboard'):'#';
+    var calcSVG='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1c75bc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><circle cx="8.5" cy="11" r=".5" fill="#1c75bc"/><circle cx="12" cy="11" r=".5" fill="#1c75bc"/><circle cx="15.5" cy="11" r=".5" fill="#1c75bc"/><circle cx="8.5" cy="14.5" r=".5" fill="#1c75bc"/><circle cx="12" cy="14.5" r=".5" fill="#1c75bc"/><circle cx="15.5" cy="14.5" r=".5" fill="#1c75bc"/><circle cx="8.5" cy="18" r=".5" fill="#1c75bc"/><circle cx="12" cy="18" r=".5" fill="#1c75bc"/><circle cx="15.5" cy="18" r=".5" fill="#1c75bc"/></svg>';
+    return '<td><div class="acts">'+
+      '<a class="aico" href="'+bh+'&opendeal='+encodeURIComponent(d.id)+'" target="_top" title="Open this deal\'s calculator" onclick="return preOpen('+q(d.id)+')">'+calcSVG+'</a>'+
+      '<a class="aico" href="#" onclick="return driveGo('+q(d.id)+')" title="'+(d.driveFolder?'Open this borrower\'s Drive folder':'Set this borrower\'s Drive folder')+'">📁</a>'+
+      '<a class="aico" href="'+bh+'&emailpanel='+encodeURIComponent(d.id)+'" target="_top" title="Email the borrower">✉</a>'+
+    '</div></td>'; }
+  return '<td></td>';
+}
+
+/* ---------- columns menu ---------- */
+function colMenuHTML(){
+  if(!COLMENU) return '';
+  var items=COLS.map(function(c){
+    if(LOCKED[c.k]) return '<div class="cm-item locked"><input type="checkbox" checked disabled> '+c.label+'<span class="tagx">always</span></div>';
+    return '<label class="cm-item"><input type="checkbox" '+(HIDDEN[c.k]?'':'checked')+' onclick="toggleCol(\''+c.k+'\')"> '+c.label+'</label>';
+  }).join('');
+  return '<div class="cm-back" onmousedown="closeColMenu()"></div><div class="colmenu"><div class="cm-title">Show / hide columns</div>'+items+'</div>';
+}
+function toggleColMenu(e){ if(e){e.stopPropagation();} COLMENU=!COLMENU; render(); }
+function closeColMenu(){ COLMENU=false; render(); }
+function toggleCol(k){ HIDDEN[k]=!HIDDEN[k]; render(); }
+
+/* ---------- summary ---------- */
+function monthWindow(){ var out=[], d=new Date(); d.setDate(1); for(var i=0;i<5;i++){ var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); var lbl=d.toLocaleString('en-US',{month:'long'})+' '+d.getFullYear(); out.push({key:key,label:lbl,sel:i===0}); d.setMonth(d.getMonth()+1); } return out; }
+function summaryHTML(){
+  var rows=activeTracker();
+  var ttlLoan=0,ttlComp=0,wod=0,proc=0,uw=0,ctc=0;
+  rows.forEach(function(d){ ttlLoan+=(d.loanAmount||0); ttlComp+=(d.comp||0); if(d.currentStatus==='Waiting on Docs')wod++; if(d.currentStatus==='Processing')proc++; if(d.currentStatus==='Underwriting')uw++; if(d.currentStatus==='Clear to Close')ctc++; });
+  var avg=rows.length?Math.round(ttlComp/rows.length):0;
+  var S=[['TTL Loan Amount',money(ttlLoan)||'$0',''],['TTL Est. Comp',money(ttlComp)||'$0','comp'],['Avg. Comp / Loan',money(avg)||'$0','comp'],['Active Loans',String(rows.length),''],['Waiting on Docs',String(wod),''],['In Processing',String(proc),''],['Underwriting',String(uw),''],['Clear to Close',String(ctc),'']];
+  var ps=S.map(function(s){return '<div class="pstat"><div class="lab">'+s[0]+'</div><div class="val '+s[2]+'">'+s[1]+'</div></div>';}).join('');
+  var months=monthWindow();
+  var mrows=months.map(function(m){var mc=0,ml=0;rows.forEach(function(d){if(monthKey(d.closeISO)===m.key){mc+=(d.comp||0);ml++;}});return '<tr class="'+(m.sel?'sel':'')+'"><td>'+m.label+'</td><td class="num mc">'+(money(mc)||'$0')+'</td><td class="num">'+ml+'</td></tr>';}).join('');
+  return '<div class="summ"><div class="panel"><div class="ph">Active Pipeline Summary</div><div class="pstats">'+ps+'</div></div>'+
+         '<div class="panel"><div class="ph">Monthly Comp Projection (by close date)</div><table class="mtbl"><tr><th>Month</th><th class="num">Expected Comp</th><th class="num">Loans</th></tr>'+mrows+'</table></div></div>';
+}
+
+/* ---------- follow-up banner ---------- */
+function fuBannerHTML(){
+  var due=activeTracker().filter(function(d){ return d.owner===CURRENT_USER && fuPast(d); });
+  if(!due.length) return '';   // nothing past due = no banner at all
+  var list=due.map(function(d){var od=daysBetween(d.followISO,TODAY);var tag=od>0?(od+' day'+(od>1?'s':'')+' overdue'):'due today';var tm=d.followTime?(' at '+fmtTime(d.followTime)):'';return '<li><b>'+esc(d.borrower||'—')+'</b> — '+tag+tm+'</li>';}).join('');
+  return '<div class="fubanner"><div class="fb-top">🔔 <b>'+esc(CURRENT_USER)+': '+due.length+' follow-up'+(due.length>1?'s':'')+' need attention</b></div><ul class="fb-list">'+list+'</ul><div class="fb-note">Only <b>'+esc(CURRENT_USER)+'</b> gets these — each deal emails its <b>Owner</b>, so DK and SP never get each other\'s reminders. Repeats until you change the status, push the date, or clear it (timed ones fire at the set time; the rest at 7am). Switch "Viewing as" above to see another person\'s list.</div></div>';
+}
+
+/* ---------- CSV export ---------- */
+function exportCSV(){
+  var rows=currentRows();
+  var cols=[['Borrower','borrower'],['Property','address'],['Property Type','propertyType'],['Loan Purpose','purpose'],['Loan Amt','loanAmount'],['Est Close','closeISO'],['Deal Status','dealStatus'],['Current Status','currentStatus'],['Expected Comp','comp'],['Owner','owner'],['Lender','lender'],['Follow-Up','followISO'],['Follow Time','followTime'],['Notes','notes']];
+  var lines=[cols.map(function(c){return '"'+c[0]+'"';}).join(',')];
+  rows.forEach(function(d){ lines.push(cols.map(function(c){ var v=d[c[1]]; return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }).join(',')); });
+  var blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ASAP_Loan_Tracker_'+TODAY+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ---------- render ---------- */
+function currentRows(){
+  var scopeSet = SCOPE==='active'?activeTracker():archivedTracker();
+  var q=SEARCH.trim().toLowerCase();
+  return scopeSet.filter(function(d){
+    if(DS_FILTER==='all'&&(d.dealStatus==='Credit Repair'||d.dealStatus==='Nurture/Future')) return false; // parked deals show only via their chips
+    if(DS_FILTER!=='all'&&d.dealStatus!==DS_FILTER) return false;
+    if(q&&((d.borrower||'')+' '+(d.address||'')+' '+(d.lender||'')+' '+(d.notes||'')+' '+(d.loanType||'')).toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+}
+function hubTitles_(){
+  var h1=document.getElementById('hubTitle'), sub=document.getElementById('hubSub');
+  if(!h1) return;
+  if(VIEW==='crm'){ h1.textContent='ASAP Contact CRM'; if(sub) sub.textContent='People, not properties — conversations, campaigns, and their deals'; }
+  else if(VIEW==='calc'){ h1.textContent='ASAP Calculators'; if(sub) sub.textContent='DSCR · Bridge / Fix & Flip · Commercial · Land & Dev'; }
+  else { h1.textContent='ASAP Loan Tracker'; if(sub) sub.textContent='Deal Status = the situation · Current Status = the processing step'; }
+  try{ document.title=h1.textContent; }catch(e){}
+}
+function render(){
+  if(!LOADED) return;
+  renderNav();
+  hubTitles_();
+  var el=document.getElementById('app');
+  var _tw=document.querySelector('.tablewrap'); var _sl=_tw?_tw.scrollLeft:0, _st=_tw?_tw.scrollTop:0;
+  var _dp=document.getElementById('dripPop'); var _dpTop=_dp?_dp.scrollTop:null;
+  var _win=(_dp!=null)?{x:window.scrollX,y:window.scrollY}:null;
+
+  if(VIEW==='crm'){ el.innerHTML=crmHTML();
+    var dp2=document.getElementById('dripPop');
+    if(dp2&&_dpTop!=null){ dp2.scrollTop=_dpTop; }
+    if(_win){ window.scrollTo(_win.x,_win.y); }
+    return; }
+  if(VIEW==='calc'){ el.innerHTML=calcHTML(); return; }
+
+  if(!DEALS.length){
+    el.innerHTML='<div class="state" style="margin-top:60px">No deals in your Loan Tracker yet.<br><br>On the Board, check <b>Add to Loan Tracker</b> on a deal to promote it here.<br><br><a class="tbtn" href="'+(HUB?(HUB+(HUB.indexOf('?')>=0?'&':'?')+'dashboard'):'#')+'" target="_top" style="text-decoration:none">Go to the Board</a></div>';
+    return;
+  }
+
+  var scopeSet = SCOPE==='active'?activeTracker():archivedTracker();
+  var c={all:scopeSet.length}; scopeSet.forEach(function(d){c[d.dealStatus]=(c[d.dealStatus]||0)+1;});
+  var chips=['<span class="dchip" style="'+(DS_FILTER==='all'?'background:var(--brand);border-color:var(--brand);color:#fff':'')+'" onclick="setDS(\'all\')">All <span class="n">'+c.all+'</span></span>'];
+  DEAL_STATUSES.forEach(function(s){ if(!c[s])return; var on=DS_FILTER===s; chips.push('<span class="dchip'+(on?' active':'')+'" style="'+(on?'background:'+DS_COLOR[s]+';border-color:'+DS_COLOR[s]:'')+'" onclick="setDS(\''+s.replace(/'/g,"\\'")+'\')"><span class="dot" style="background:'+DS_COLOR[s]+'"></span>'+s+' <span class="n">'+c[s]+'</span></span>'); });
+
+  var rows=currentRows();
+  var h='';
+  h+='<div class="expl">▤ <b>Loan Tracker</b> — <b>Deal Status</b> is the colored <b>dot</b> by each name (click it to change; hover for the label; the chips below are the color legend). <b>Current Status</b> stays blank ("—") until a deal is actually being processed.</div>';
+  h+='<div class="toolbar"><div class="seg"><button class="'+(SCOPE==='active'?'on':'')+'" onclick="setScope(\'active\')">Active ('+activeTracker().length+')</button><button class="'+(SCOPE==='archived'?'on':'')+'" onclick="setScope(\'archived\')">Archived ('+archivedTracker().length+')</button></div>'+
+     '<label class="viewas">👤 Viewing as <select onchange="CURRENT_USER=this.value;render();"><option'+(CURRENT_USER==='DK'?' selected':'')+'>DK</option><option'+(CURRENT_USER==='SP'?' selected':'')+'>SP</option></select></label>'+
+     '<input id="search" type="search" placeholder="Search borrower, address, lender…" value="'+esc(SEARCH)+'" oninput="SEARCH=this.value;render();var s=document.getElementById(\'search\');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length);}">'+
+     '<span class="spacer"></span><div class="colwrap"><button class="tbtn" onclick="toggleColMenu(event)">▤ Columns ▾</button>'+colMenuHTML()+'</div><button class="tbtn solid" onclick="exportCSV()">⬇ Export</button></div>';
+  h+='<div class="dchips">'+chips.join('')+'</div>';
+  if(SCOPE==='active') h+=fuBannerHTML();
+  h+='<div class="tablewrap"><table><thead><tr>'+visibleCols().map(function(col){return '<th class="'+(col.num?'num':'')+'">'+col.label+'</th>';}).join('')+'</tr></thead><tbody>';
+  h+= rows.length ? rows.map(function(d){return '<tr class="'+(fuPast(d)?'fupast':'')+'">'+visibleCols().map(function(col){return cell(d,col.k);}).join('')+'</tr>';}).join('') : '<tr><td colspan="'+visibleCols().length+'" style="padding:30px;text-align:center;color:var(--muted)">Nothing here'+(SCOPE==='archived'?' — Funded and Dead deals land here.':'.')+'</td></tr>';
+  h+='</tbody></table></div>';
+  h+= SCOPE==='active' ? summaryHTML()
+     : '<div class="funone" style="background:#fff;border-color:var(--line);color:var(--muted)">🗄️ <b>Archived = kept, never deleted.</b> Funded (won) and Dead deals land here, stay searchable, and return to Active if you set their Deal Status back.</div>';
+  h+= followPopover();
+  el.innerHTML=h;
+  var _tw2=document.querySelector('.tablewrap'); if(_tw2){ _tw2.scrollLeft=_sl; _tw2.scrollTop=_st; }
+  var fi=document.querySelector('.editing-input'); if(fi&&EDIT.field==='follow'){ fi.focus(); }
+}
+function setScope(s){ SCOPE=s; DS_FILTER='all'; EDIT={id:null,field:null}; render(); }
+function setDS(s){ DS_FILTER=s; render(); }
+
+/* ---------- CRM (Contacts) ---------- */
+var CRM=[], CRM_LOADED=false, CRM_CAMPS=[], CRM_TYPES=[], CRM_SEARCH='', CRM_EDIT={id:null,field:null}, CRM_NOTES_OPEN=null;
+function crmLoad(){
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ CRM=res.contacts||[]; CRM_CAMPS=res.campaigns||[]; CRM_TYPES=res.types||[]; CRM_LOADED=true; render(); }
+    else { toast('Could not load contacts: '+((res&&res.error)||'')); }
+  }).withFailureHandler(function(e){ toast('Error loading contacts.'); }).pipeline_crmList();
+}
+function crmNorm(x){ return String(x||'').toLowerCase().replace(/[^0-9a-z]+/g,''); }
+function crmForDeal(d){
+  if(!CRM_LOADED||!d) return null;
+  var em=String(d.borrowerEmail||'').toLowerCase().trim();
+  for(var i=0;i<CRM.length;i++){ if(em && String(CRM[i].email||'').toLowerCase().trim()===em) return CRM[i]; }
+  var nn=crmNorm(d.borrower);
+  if(nn.length>4){ for(var j=0;j<CRM.length;j++){ if(crmNorm(CRM[j].name)===nn) return CRM[j]; } }
+  return null;
+}
+function dealsForContact(c){
+  if(!c) return [];
+  var em=String(c.email||'').toLowerCase().trim(), nn=crmNorm(c.name);
+  return DEALS.filter(function(d){
+    if(em && String(d.borrowerEmail||'').toLowerCase().trim()===em) return true;
+    return nn.length>4 && crmNorm(d.borrower)===nn;
+  });
+}
+function crmFromDeal(id){
+  var d=byId(id); if(!d) return false;
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ CRM_LOADED=false; crmLoad(); toast('Contact created for '+(d.borrower||'borrower')+'.'); }
+    else { toast('Could not create contact.'); }
+  }).withFailureHandler(function(){ toast('Could not create contact.'); }).pipeline_crmAdd(d.borrower||'', '', d.borrowerEmail||'', 'Investor');
+  return false;
+}
+function crmById(id){ for(var i=0;i<CRM.length;i++){ if(String(CRM[i].id)===String(id)) return CRM[i]; } return null; }
+function crmSave(id,field,value){
+  google.script.run.withSuccessHandler(function(res){ if(!res||!res.ok){ toast('Save failed: '+((res&&res.error)||'')); crmLoad(); } })
+    .withFailureHandler(function(){ toast('Save failed — reloading.'); crmLoad(); }).pipeline_crmSave(id,field,value);
+}
+var CRM_ADD=false;
+function crmAddContact(){ CRM_ADD=!CRM_ADD; render(); var n=document.getElementById('caName'); if(n) n.focus(); }
+function crmAddSave(){
+  var nm=(document.getElementById('caName')||{}).value||'';
+  if(!nm.trim()){ toast('Give the contact a name.'); return; }
+  var ph=(document.getElementById('caPhone')||{}).value||'', em=(document.getElementById('caEmail')||{}).value||'';
+  var ty=(document.getElementById('caType')||{}).value||'Investor';
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ CRM_ADD=false; crmLoad(); toast('Contact added.'); } else { toast('Could not add: '+((res&&res.error)||'')); }
+  }).withFailureHandler(function(){ toast('Could not add contact.'); }).pipeline_crmAdd(nm.trim(),ph.trim(),em.trim(),ty);
+}
+function crmAddForm(){
+  if(!CRM_ADD) return '';
+  return '<div style="border:2px solid var(--brand);border-radius:10px;padding:12px;margin:0 0 14px;background:#f4f8fd;max-width:680px">'+
+    '<div style="font-size:11px;font-weight:800;color:var(--brand);text-transform:uppercase;margin-bottom:8px">New contact</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<input id="caName" placeholder="Full name" style="flex:2;min-width:160px;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'+
+      '<input id="caPhone" placeholder="Phone (optional)" style="flex:1;min-width:130px;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'+
+      '<input id="caEmail" placeholder="Email (optional)" style="flex:2;min-width:180px;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px">'+
+      '<select id="caType" class="selin" style="font-size:13px;padding:8px">'+['Prospect','Investor','Borrower','Realtor','Closing Attorney','Title / Escrow Agent','Referral Partner','Other'].map(function(x){return '<option>'+x+'</option>';}).join('')+'</select>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:flex-end;gap:7px;margin-top:10px">'+
+      '<button class="fu-clear" style="color:var(--muted);border-color:var(--line)" onclick="CRM_ADD=false;render()">Cancel</button>'+
+      '<button class="fu-set" onclick="crmAddSave()">Save contact</button>'+
+    '</div></div>';
+}
+function crmDelete(id){
+  var c=crmById(id); if(!c) return;
+  if(!confirm('Delete '+(c.name||'this contact')+' and their conversation log?')) return;
+  CRM=CRM.filter(function(x){return String(x.id)!==String(id);}); render();
+  google.script.run.withSuccessHandler(function(res){ if(!res||!res.ok){ toast('Delete failed.'); crmLoad(); } })
+    .withFailureHandler(function(){ toast('Delete failed.'); crmLoad(); }).pipeline_crmDelete(id);
+}
+function crmOpenEdit(id,field){ CRM_EDIT={id:id,field:field}; render(); setTimeout(function(){ var i=document.querySelector('.crm-editing'); if(i){ i.focus(); if(i.select){try{i.select();}catch(e){}} } },0); }
+function crmSet(id,field,raw){
+  var c=crmById(id); if(!c) return;
+  var v=String(raw==null?'':raw).trim();
+  if(field==='name')c.name=v; if(field==='phone')c.phone=v; if(field==='email')c.email=v; if(field==='type')c.type=v; if(field==='campaign')c.campaign=v;
+  c.lastTouch=TODAY;
+  CRM_EDIT={id:null,field:null};
+  crmSave(id,field,v); render();
+}
+function crmLocked(c,field){
+  if(field!=='name'&&field!=='email') return false;
+  return dealsForContact(c).length>0;   // deal-linked: identity fields are card-owned
+}
+function crmCell(c,field,label){
+  if(crmLocked(c,field)){
+    var cur0=field==='name'?c.name:c.email;
+    return '<span class="cardonly" title="Linked to a deal \u2014 edit this on the deal card / Key Metrics so the link never breaks">'+(cur0?esc(cur0):'<span class="dash">\u2014</span>')+'<span class="lk">\ud83d\udd12</span></span>';
+  }
+  if(CRM_EDIT.id===c.id&&CRM_EDIT.field===field){
+    if(field==='type'||field==='campaign'){
+      var opts=(field==='type'?CRM_TYPES:CRM_CAMPS).map(function(x){return '<option'+(x===(field==='type'?c.type:c.campaign)?' selected':'')+'>'+esc(x)+'</option>';}).join('');
+      return '<select class="selin crm-editing" onchange="crmSet('+q(c.id)+',\''+field+'\',this.value)" onblur="CRM_EDIT={id:null,field:null};render();">'+opts+'</select>';
+    }
+    var val=field==='name'?c.name:(field==='phone'?c.phone:c.email);
+    return '<input class="txtin crm-editing" style="width:150px" value="'+esc(val)+'" onchange="crmSet('+q(c.id)+',\''+field+'\',this.value)" onblur="crmSet('+q(c.id)+',\''+field+'\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()">';
+  }
+  var cur=field==='name'?c.name:(field==='phone'?c.phone:(field==='email'?c.email:(field==='type'?c.type:c.campaign)));
+  var shown=cur?esc(cur):'<span class="dash">+ add</span>';
+  if(field==='campaign'&&cur&&cur!=='None') shown='<span class="pill" style="background:#e8f1fb;color:#1c75bc">'+esc(cur)+' <span class="cv">▾</span></span>';
+  if(field==='campaign'&&(!cur||cur==='None')) shown='<span class="pill" style="background:#f4f6f9;color:#9aa7b4">None <span class="cv">▾</span></span>';
+  return '<span class="editcell" onclick="crmOpenEdit('+q(c.id)+',\''+field+'\')">'+shown+'</span>';
+}
+function crmNotesOpen(id){ CRM_NOTES_OPEN=id; render(); setTimeout(function(){ var t=document.getElementById('crmNoteNew'); if(t) t.focus(); },0); }
+function crmNotesClose(){ CRM_NOTES_OPEN=null; render(); }
+function crmNoteAdd(id){
+  var t=document.getElementById('crmNoteNew'); var txt=t?String(t.value||'').trim():'';
+  if(!txt) return;
+  var c=crmById(id); if(!c) return;
+  c.notes=c.notes||[]; c.notes.unshift({ts:'saving…',text:txt}); c.lastTouch=TODAY; render();
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ c.notes=res.notes||c.notes; render(); } else { toast('Note failed: '+((res&&res.error)||'')); crmLoad(); }
+  }).withFailureHandler(function(){ toast('Note failed.'); crmLoad(); }).pipeline_crmAddNote(id,txt);
+}
+function crmNotesModal(){
+  if(!CRM_NOTES_OPEN) return '';
+  var c=crmById(CRM_NOTES_OPEN); if(!c) return '';
+  var items=(c.notes||[]).map(function(n){return '<div style="border-bottom:1px solid var(--line);padding:8px 0"><div style="font-size:11px;color:var(--muted);font-weight:700">'+esc(n.ts)+'</div><div style="font-size:13px;white-space:pre-wrap">'+esc(n.text)+'</div></div>';}).join('')||'<div style="color:var(--muted);font-size:13px;padding:8px 0">No conversations logged yet.</div>';
+  return '<div class="fu-back" onmousedown="crmNotesClose()"></div>'+
+    '<div class="fu-pop" style="top:90px;left:50%;transform:translateX(-50%);width:480px;max-width:92vw">'+
+      '<div class="fu-pop-t">Conversation log — '+esc(c.name||'contact')+'</div>'+
+      '<textarea id="crmNoteNew" placeholder="What did you talk about?" style="width:100%;min-height:64px;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px;font-family:inherit"></textarea>'+
+      '<div style="display:flex;justify-content:flex-end;gap:7px;margin:8px 0 10px"><button class="fu-clear" onmousedown="event.preventDefault();crmNotesClose()">Close</button><button class="fu-set" onmousedown="event.preventDefault();crmNoteAdd(\''+String(c.id).replace(/'/g,"\\'")+'\')">Save note</button></div>'+
+      '<div style="max-height:300px;overflow:auto">'+items+'</div>'+
+    '</div>';
+}
+function crmHTML(){
+  if(!CRM_LOADED){ crmLoad(); return '<div class="state"><span class="spin"></span>Loading contacts…</div>'; }
+  var qy=CRM_SEARCH.trim().toLowerCase();
+  var rows=CRM.filter(function(c){ if(!qy) return true; return ((c.name||'')+' '+(c.email||'')+' '+(c.phone||'')+' '+(c.campaign||'')).toLowerCase().indexOf(qy)>=0; });
+  var h='<div class="expl">👤 <b>Contacts</b> — people, not properties: scenario calls, realtors, and future borrowers. The conversation log follows the <b>person</b>; deal notes stay on their deals. Set a <b>Campaign</b> to tag them for drips (automated sending is the next phase).</div>';
+  h+='<div class="toolbar"><button class="tbtn solid" onclick="crmAddContact()">+ Add contact</button>'+
+     '<button class="tbtn" onclick="dripOpen()">⚙ Manage Campaigns</button>'+
+     '<input id="crmSearch" type="search" placeholder="Search name, email, phone, campaign…" value="'+esc(CRM_SEARCH)+'" oninput="CRM_SEARCH=this.value;render();var s=document.getElementById(\'crmSearch\');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length);}"></div>';
+  h+=crmAddForm();
+  h+='<div class="tablewrap"><table style="min-width:1000px"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Type</th><th>Drip Campaign</th><th>Drip</th><th>Last Touch</th><th>Deals</th><th>Conversations</th><th></th></tr></thead><tbody>';
+  h+= rows.length ? rows.map(function(c){
+    var n=(c.notes||[]).length;
+    return '<tr><td><b>'+crmCell(c,'name')+'</b></td><td>'+crmCell(c,'phone')+'</td><td>'+crmCell(c,'email')+'</td><td>'+crmCell(c,'type')+'</td><td>'+crmCell(c,'campaign')+'</td>'+
+      '<td>'+(c.campaign&&c.campaign!=='None'?('<span title="Emails sent so far — a failed send never advances the step">'+(c.dripStep||0)+'/12'+(c.dripLast?(' · '+fmtDate(c.dripLast)):'')+'</span>'):'<span class="dash">—</span>')+'</td>'+
+      '<td>'+(c.lastTouch?fmtDate(c.lastTouch):'—')+'</td>'+
+      '<td>'+(function(){var dl=dealsForContact(c);return dl.length?'<a class="aico" href="#" onclick="VIEW=\'tracker\';SEARCH=\''+esc(c.name||'').replace(/'/g,"\\'")+'\';render();return false;">'+dl.length+' deal'+(dl.length>1?'s':'')+'</a>':'<span class="dash">—</span>';})()+'</td>'+
+      '<td><a class="aico" href="#" onclick="crmNotesOpen(\''+String(c.id).replace(/'/g,"\\'")+'\');return false;">🗨 '+(n?n+' note'+(n>1?'s':''):'+ log a call')+'</a></td>'+
+      '<td><a class="aico" href="#" style="color:#b23b3b" onclick="crmDelete(\''+String(c.id).replace(/'/g,"\\'")+'\');return false;" title="Delete contact">✕</a></td></tr>';
+  }).join('') : '<tr><td colspan="8" style="padding:30px;text-align:center;color:var(--muted)">No contacts yet — click <b>+ Add contact</b> after your next scenario call.</td></tr>';
+  h+='</tbody></table></div>'+crmNotesModal()+dripModal();
+  return h;
+}
+
+/* ---------- Manage Campaigns panel ---------- */
+var DRIP=null, DRIP_OPEN=false;
+function dripOpen(){ DRIP_OPEN=true; if(!DRIP){ google.script.run.withSuccessHandler(function(res){ if(res&&res.ok){ DRIP=res.campaigns; render(); } else { toast('Could not load campaigns.'); DRIP_OPEN=false; } }).withFailureHandler(function(){ toast('Could not load campaigns.'); DRIP_OPEN=false; }).pipeline_dripConfigList(); }
+  render(); }
+function dripClose(){ DRIP_OPEN=false; render(); }
+function dripSave(camp, field, value, elem){
+  var c=null; for(var i=0;i<(DRIP||[]).length;i++){ if(DRIP[i].campaign===camp){ c=DRIP[i]; break; } }
+  if(!c) return;
+  if(field==='active'){ c.active=!!value; if(elem){ var tr=elem.closest('tr'); if(tr) tr.style.opacity=c.active?'':'0.5'; } }
+  if(field==='freq') c.freq=Math.max(1,parseInt(value,10)||30);
+  if(field==='sender') c.sender=value;
+  if(field==='hour') c.hour=parseInt(value,10);
+  if(field==='day'){
+    var set=(c.days||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    var ix=set.indexOf(value), on;
+    if(ix>=0){
+      if(set.length<=1){ toast('Keep at least one send day.'); return; }
+      set.splice(ix,1); on=false;
+    } else { set.push(value); on=true; }
+    var ORD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    set.sort(function(a,b){return ORD.indexOf(a)-ORD.indexOf(b);});
+    c.days=set.join(',');
+    if(elem){ elem.style.background=on?'var(--brand)':'#eef2f7'; elem.style.color=on?'#fff':'#9aa7b4'; }
+  }
+  // No re-render: the clicked control is updated in place, so the view cannot jump.
+  google.script.run.withSuccessHandler(function(res){ if(!res||!res.ok){ toast('Save failed: '+((res&&res.error)||'')); } })
+    .withFailureHandler(function(){ toast('Save failed.'); }).pipeline_dripConfigSave(camp, c.active, c.freq, c.sender, (c.hour==null?9:c.hour), c.days||'Mon,Tue,Wed,Thu,Fri');
+}
+function dripHourLabel(h){ var ap=h>=12?'PM':'AM'; var hh=h%12; if(hh===0)hh=12; return hh+' '+ap; }
+var CAMP_EXP=null, DRIP_EMAIL=null;
+function campExp(camp){ CAMP_EXP=(CAMP_EXP===camp?null:camp); DRIP_EMAIL=null; render(); }
+function dripEmailOpen(camp, idx){
+  DRIP_EMAIL={camp:camp, idx:idx, loading:true}; render();
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ DRIP_EMAIL={camp:camp, idx:idx, subject:res.subject, body:res.body, edited:res.edited}; }
+    else { toast('Could not load the email.'); DRIP_EMAIL=null; }
+    render();
+  }).withFailureHandler(function(){ toast('Could not load the email.'); DRIP_EMAIL=null; render(); }).pipeline_dripGetEmail(camp, idx);
+}
+function dripEmailSave(reset){
+  if(!DRIP_EMAIL) return;
+  var subj=reset?'':(document.getElementById('deSubj')||{}).value||'';
+  var body=reset?'':(document.getElementById('deBody')||{}).value||'';
+  var e=DRIP_EMAIL; e.saving=true; render();
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ DRIP_EMAIL={camp:e.camp, idx:e.idx, subject:res.subject, body:res.body, edited:res.edited}; toast(res.edited?'Email saved.':'Restored the original.');
+      google.script.run.withSuccessHandler(function(r2){ if(r2&&r2.ok){ DRIP=r2.campaigns; render(); } }).withFailureHandler(function(){}).pipeline_dripConfigList(); }
+    else { toast('Save failed: '+((res&&res.error)||'')); e.saving=false; }
+    render();
+  }).withFailureHandler(function(){ toast('Save failed.'); e.saving=false; render(); }).pipeline_dripSaveEmail(e.camp, e.idx, subj, body);
+}
+function dripEmailClose(){ DRIP_EMAIL=null; render(); }
+var NEWC=null;
+function dripCreate(){ NEWC=(NEWC?null:{step:'form'}); render(); var n=document.getElementById('ncName'); if(n) n.focus(); }
+function dripBuild(){
+  var nm=(document.getElementById('ncName')||{}).value||'', ds=(document.getElementById('ncDesc')||{}).value||'';
+  if(!nm.trim()){ toast('Give the campaign a name.'); return; }
+  if(!ds.trim()){ toast('Describe the campaign so the AI knows who it is writing for.'); return; }
+  NEWC={step:'building',name:nm.trim()}; render();
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ NEWC=null; toast('Campaign "'+res.name+'" created with 12 emails.'); DRIP=null; CRM_LOADED=false; crmLoad(); dripOpen(); }
+    else { NEWC={step:'form'}; toast('Could not create: '+((res&&res.error)||'')); render(); }
+  }).withFailureHandler(function(e){ NEWC={step:'form'}; toast('Error: '+((e&&e.message)||e)); render(); }).pipeline_dripCreateCampaign(nm.trim(), ds.trim());
+}
+function dripNewForm(){
+  if(!NEWC) return '';
+  if(NEWC.step==='building'){
+    return '<div style="border:2px solid var(--brand);border-radius:10px;padding:16px;margin-bottom:12px;background:#f4f8fd;text-align:center">'+
+      '<div style="font-size:13px;font-weight:800;color:var(--brand)">Building "'+esc(NEWC.name)+'" — writing 12 emails in your voice…</div>'+
+      '<div style="font-size:11.5px;color:var(--muted);margin-top:4px">Takes 20-40 seconds. Leave this panel open.</div></div>';
+  }
+  return '<div style="border:2px solid var(--brand);border-radius:10px;padding:12px;margin-bottom:12px;background:#f4f8fd">'+
+    '<div style="font-size:11px;font-weight:800;color:var(--brand);text-transform:uppercase;margin-bottom:6px">＋ New campaign — built by AI</div>'+
+    '<div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Campaign name (shows in the Contacts dropdown)</div>'+
+    '<input id="ncName" placeholder="e.g., Bridge — Auction Buyers" style="width:100%;font-size:13px;font-weight:700;padding:7px 9px;border:1px solid var(--line);border-radius:7px;margin-bottom:8px;box-sizing:border-box">'+
+    '<div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Describe it like you would tell me on the phone — who it is for, the loan program, what matters to them</div>'+
+    '<textarea id="ncDesc" placeholder="These are investors who buy at courthouse auctions. They need to close in days with cash-like certainty…" style="width:100%;min-height:90px;font-size:12.5px;line-height:1.5;padding:8px;border:1px solid var(--line);border-radius:7px;font-family:inherit;box-sizing:border-box"></textarea>'+
+    '<div style="display:flex;justify-content:flex-end;gap:7px;margin-top:8px">'+
+      '<button class="fu-clear" style="color:var(--muted);border-color:var(--line)" onclick="NEWC=null;render()">Cancel</button>'+
+      '<button class="fu-set" onclick="dripBuild()">Build 12 emails</button>'+
+    '</div></div>';
+}
+function dripDelete(camp){
+  if(!confirm('Delete the "'+camp+'" campaign?\n\nIts sends stop immediately. Contacts assigned to it are kept (set them to another campaign when ready).')) return;
+  google.script.run.withSuccessHandler(function(res){
+    if(res&&res.ok){ toast('Campaign deleted.'); DRIP=null; CRM_LOADED=false; crmLoad(); dripOpen(); }
+    else { toast('Delete failed: '+((res&&res.error)||'')); }
+  }).withFailureHandler(function(){ toast('Delete failed.'); }).pipeline_dripDeleteCampaign(camp);
+}
+function dripModal(){
+  if(!DRIP_OPEN) return '';
+  if(!DRIP) return '<div class="fu-back" onmousedown="dripClose()"></div><div class="fu-pop" style="top:90px;left:50%;transform:translateX(-50%);width:520px"><div class="fu-pop-t">Loading campaigns…</div></div>';
+  var rows=DRIP.map(function(c){
+    var send='<select class="selin" style="font-size:11.5px;padding:3px 5px" onchange="dripSave(\''+c.campaign.replace(/'/g,"\\'")+'\',\'sender\',this.value)">'+
+      ['marketing|ASAP Team','joe|Joe','daniel|Daniel'].map(function(o){var p=o.split('|');return '<option value="'+p[0]+'"'+(c.sender===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+'</select>';
+    var hh=(c.hour==null?9:c.hour);
+    var timeSel='<select class="selin" style="font-size:11.5px;padding:3px 5px" onchange="dripSave(\''+c.campaign.replace(/'/g,"\\'")+'\',\'hour\',this.value)">'+
+      [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(function(h){return '<option value="'+h+'"'+(h===hh?' selected':'')+'>'+dripHourLabel(h)+'</option>';}).join('')+'</select>';
+    var dset={}; String(c.days||'Mon,Tue,Wed,Thu,Fri').split(',').forEach(function(x){dset[x.trim()]=1;});
+    var dayBtns=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(dd){
+      var on=!!dset[dd];
+      return '<span onclick="dripSave(\''+c.campaign.replace(/'/g,"\\'")+'\',\'day\',\''+dd+'\',this)" style="cursor:pointer;display:inline-block;width:20px;text-align:center;border-radius:5px;font-size:10px;font-weight:800;padding:2px 0;margin:0 1px;'+(on?'background:var(--brand);color:#fff':'background:#eef2f7;color:#9aa7b4')+'">'+dd[0]+'</span>';
+    }).join('');
+    var isExp=CAMP_EXP===c.campaign;
+    var r='<tr><td style="padding:7px 8px;font-weight:700;font-size:12.5px;cursor:pointer" onclick="campExp(\''+c.campaign.replace(/'/g,"\\'")+'\')">'+esc(c.campaign)+' <span style="opacity:.5;font-size:10px">'+(isExp?'▲ hide emails':'▼ view / edit 12 emails')+'</span></td>'+
+      '<td style="padding:7px 8px;text-align:center"><input type="checkbox" '+(c.active?'checked':'')+' style="width:15px;height:15px;accent-color:var(--brand)" onchange="dripSave(\''+c.campaign.replace(/'/g,"\\'")+'\',\'active\',this.checked,this)"></td>'+
+      '<td style="padding:7px 8px"><input type="number" min="1" value="'+c.freq+'" style="width:52px;font-size:12px;padding:3px 5px;border:1px solid var(--line);border-radius:6px" onchange="dripSave(\''+c.campaign.replace(/'/g,"\\'")+'\',\'freq\',this.value)"></td>'+
+      '<td style="padding:7px 8px;white-space:nowrap">'+timeSel+'</td>'+
+      '<td style="padding:7px 8px;white-space:nowrap">'+dayBtns+'</td>'+
+      '<td style="padding:7px 8px">'+send+'</td>'+
+      '<td style="padding:7px 8px;text-align:center;font-size:12px">'+(c.contacts||0)+'</td>'+
+      '<td style="padding:7px 8px;text-align:center"><a class="aico" href="#" style="color:#b23b3b;border:0" title="Delete this campaign" onclick="dripDelete(\''+c.campaign.replace(/'/g,"\\'")+'\');return false;">🗑</a></td></tr>';
+    if(isExp){
+      r+='<tr><td colspan="8" style="padding:4px 8px 12px;background:#f7fafc">'+
+        '<div style="font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;margin:6px 0 4px">Click any email to view and edit it</div>'+
+        (c.subjects||[]).map(function(x,k){
+          var isOpen=DRIP_EMAIL&&DRIP_EMAIL.camp===c.campaign&&DRIP_EMAIL.idx===k;
+          var row='<div style="font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line);cursor:pointer" onclick="dripEmailOpen(\''+c.campaign.replace(/'/g,"\\'")+'\','+k+')"><b style="color:var(--brand)">#'+(k+1)+'</b> '+esc(x)+' <span style="opacity:.45;font-size:10px">'+(isOpen?'▲':'✎ edit')+'</span></div>';
+          if(isOpen){
+            if(DRIP_EMAIL.loading){ row+='<div style="padding:8px;color:var(--muted);font-size:12px">Loading…</div>'; }
+            else {
+              row+='<div style="background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:6px 0" onclick="event.stopPropagation()">'+
+                '<div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Subject'+(DRIP_EMAIL.edited?' <span style="color:#c07d16">(edited — Reset restores the original)</span>':'')+'</div>'+
+                '<input id="deSubj" value="'+esc(DRIP_EMAIL.subject)+'" style="width:100%;font-size:13px;font-weight:700;padding:6px 8px;border:1px solid var(--line);border-radius:7px;margin-bottom:8px">'+
+                '<div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Body — {FIRST} becomes the contact\'s first name; signature + disclaimer are added on send</div>'+
+                '<textarea id="deBody" style="width:100%;min-height:170px;font-size:13px;line-height:1.5;padding:8px;border:1px solid var(--line);border-radius:7px;font-family:inherit">'+esc(DRIP_EMAIL.body)+'</textarea>'+
+                '<div style="display:flex;justify-content:flex-end;gap:7px;margin-top:8px">'+
+                  '<button class="fu-clear" '+(DRIP_EMAIL.saving?'disabled':'')+' onclick="dripEmailSave(true)">Reset to original</button>'+
+                  '<button class="fu-clear" style="color:var(--muted);border-color:var(--line)" onclick="dripEmailClose()">Close</button>'+
+                  '<button class="fu-set" '+(DRIP_EMAIL.saving?'disabled':'')+' onclick="dripEmailSave(false)">'+(DRIP_EMAIL.saving?'Saving…':'Save email')+'</button>'+
+                '</div></div>';
+            }
+          }
+          return row;
+        }).join('')+'</td></tr>';
+    }
+    return r;
+  }).join('');
+  return '<div class="fu-back" onmousedown="dripClose()"></div>'+
+    '<div class="fu-pop" id="dripPop" style="top:70px;left:50%;transform:translateX(-50%);width:820px;max-width:96vw;max-height:82vh;overflow:auto">'+
+      '<div class="fu-pop-t" style="display:flex;justify-content:space-between;align-items:center">Manage Drip Campaigns <button class="fu-set" style="font-size:11px" onmousedown="event.preventDefault();dripCreate()">＋ New campaign (AI)</button></div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Each campaign has 12 pre-written emails, sent one per <b>Every (days)</b> — default monthly. {FIRST} personalizes each email; the chosen sender\'s signature and disclaimer are added automatically. Assign a contact\'s Campaign in the table to start them at email #1.</div>'+
+      dripNewForm()+
+      '<table style="width:100%;border-collapse:collapse"><tr>'+
+        '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Campaign</th>'+
+        '<th style="padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Active</th>'+
+        '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Every (days)</th>'+
+        '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Time</th>'+
+        '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Days</th>'+
+        '<th style="text-align:left;padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">From</th>'+
+        '<th style="padding:6px 8px;font-size:10px;color:var(--muted);text-transform:uppercase">Contacts</th><th></th></tr>'+rows+'</table>'+
+      '<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="fu-set" onmousedown="event.preventDefault();dripClose()">Done</button></div>'+
+    '</div>';
+}
+
+/* ---------- calculator preload: load the dashboard in a hidden frame so the
+   calc icon opens instantly; falls back to normal navigation if not ready ---------- */
+var PRE_READY=false, PRE_FRAME=null;
+function preReadyPoll(){
+  if(PRE_READY) return;
+  google.script.run.withSuccessHandler(function(ok){
+    if(ok){ PRE_READY=true; toast('\u26a1 Calculators pre-loaded \u2014 deal opens are instant now.'); }
+    else { setTimeout(preReadyPoll, 1500); }
+  }).withFailureHandler(function(){ setTimeout(preReadyPoll, 2500); }).pipeline_embedReadyCheck();
+}
+function preloadDash(){
+  if(PRE_FRAME||!HUB) return;
+  try{
+    PRE_FRAME=document.createElement('iframe');
+    PRE_FRAME.id='preDash';
+    PRE_FRAME.src=HUB+(HUB.indexOf('?')>=0?'&':'?')+'dashboard&embed=1';
+    setTimeout(preReadyPoll, 3000);
+    PRE_FRAME.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0;display:none;z-index:400;background:#fff;';
+    document.body.appendChild(PRE_FRAME);
+  }catch(e){}
+}
+function preOpen(id){
+  if(!PRE_READY||!PRE_FRAME){ toast('Still pre-loading \u2014 using the standard load this once.'); return true; }
+  try{
+    google.script.run.withFailureHandler(function(){}).pipeline_embedOpenSet(id);
+    PRE_FRAME.style.display='block';
+    var bar=document.getElementById('preBack');
+    if(!bar){
+      bar=document.createElement('div'); bar.id='preBack';
+      bar.style.cssText='position:fixed;top:10px;left:10px;z-index:401;';
+      bar.innerHTML='<button onclick="preClose()" style="background:#0e3f63;color:#fff;border:0;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)">\u2190 Back to Loan Tracker</button>';
+      document.body.appendChild(bar);
+    }
+    bar.style.display='block';
+    return false;                                      // suppress navigation
+  }catch(e){ return true; }
+}
+function preClose(){
+  if(PRE_FRAME) PRE_FRAME.style.display='none';
+  var bar=document.getElementById('preBack'); if(bar) bar.style.display='none';
+}
+(function armPreload(){ if(HUB){ preloadDash(); } else { setTimeout(armPreload, 400); } })();
+
+/* ---------- boot ---------- */
+initUrl();
+load();
+crmLoad();
+</script>
+</body>
+</html>
