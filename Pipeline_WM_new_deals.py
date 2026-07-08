@@ -407,14 +407,16 @@ def build_email_html(added: list, errors: int) -> tuple:
     now     = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     if count == 0:
-        subject = "ASAP Pipeline — No new deals this run"
-        body    = (f"<p>No new deals were found on WorkingMoni this run. "
-                   f"All available deals are already in your spreadsheet.</p>"
-                   f"{'<p style=\"color:#c0392b\">'+str(errors)+' URL(s) failed to extract data.</p>' if errors else ''}")
-        return subject, f"""<html><body style='font-family:sans-serif;padding:20px'>
-            <h2 style='color:#0e3f63'>ASAP Pipeline — Deal Importer</h2>{body}
-            <p style='color:#888;font-size:12px'>{now} · ASAP Funding Pipeline Automation</p>
-            </body></html>"""
+        subject   = "ASAP Pipeline — No new deals this run"
+        err_note  = ("<p style='color:#c0392b'>" + str(errors) + " URL(s) failed to extract data.</p>") if errors else ""
+        body      = ("<p>No new deals were found on WorkingMoni this run. "
+                     "All available deals are already in your spreadsheet.</p>" + err_note)
+        html_body = ("<html><body style='font-family:sans-serif;padding:20px'>"
+                     "<h2 style='color:#0e3f63'>ASAP Pipeline — Deal Importer</h2>"
+                     + body +
+                     "<p style='color:#888;font-size:12px'>" + now + " · ASAP Funding Pipeline Automation</p>"
+                     "</body></html>")
+        return subject, html_body
 
     subject = f"ASAP Pipeline — {count} new deal{'s' if count != 1 else ''} added"
     rows = ""
@@ -444,7 +446,7 @@ def build_email_html(added: list, errors: int) -> tuple:
         <th style='padding:8px 12px;text-align:left'>State</th>
       </tr></thead><tbody>{rows}</tbody>
     </table>
-    {'<p style="color:#c0392b;font-size:12px">'+str(errors)+' URL(s) failed to extract — will retry next run.</p>' if errors else ''}
+    ("<p style='color:#c0392b;font-size:12px'>" + str(errors) + " URL(s) failed to extract — will retry next run.</p>") if errors else ""
     <p style='margin-top:16px;color:#888;font-size:12px'>{now} · ASAP Funding Pipeline Automation</p>
     </body></html>"""
     return subject, html
