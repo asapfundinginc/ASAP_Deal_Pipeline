@@ -367,15 +367,8 @@ def main():
     for i, deal in enumerate(deals, 1):
         print(f"  [{i}/{len(deals)}] {deal['address']}")
 
-        # Fast path: WMStatus already shows unavailable from Apps Script sweep
-        # No page visit needed - the sweep has already confirmed it
-        if deal["wm_status"] in UNAVAILABLE_WMSTATUSES:
-            print(f"    -> WMStatus already set: {deal['wm_status']} (no page visit needed)")
-            deal["reason"] = deal["wm_status"]
-            unavailable.append(deal)
-            continue
-
-        # Slow path: check the page via HTTP
+        # Always do a live page check - never trust cached WMStatus
+        # (WMStatus can be stale if WorkingMoni reverts a deal back to active)
         available, status, error = check_page(deal["url"])
 
         if available is None:
