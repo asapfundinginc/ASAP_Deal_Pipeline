@@ -1,0 +1,38 @@
+# ASAP Pipeline — WorkingMoni New Deal Importer
+# Runs at 9:00 AM and 3:00 PM US Pacific Time
+# Scrapes available deals → appends new ones to Pipeline_Deals in Google Sheets
+
+name: WorkingMoni New Deal Importer
+
+on:
+  schedule:
+    - cron: "0 16 * * *"    # 9:00 AM Pacific (PDT = UTC-7)
+    - cron: "0 22 * * *"    # 3:00 PM Pacific (PDT = UTC-7)
+  workflow_dispatch: {}      # manual trigger from Actions tab
+
+jobs:
+  import-new-deals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install playwright requests gspread google-auth
+          playwright install --with-deps chromium
+
+      - name: Run new deal importer
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GMAIL_ADDRESS:               ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:          ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL:             ${{ secrets.RECIPIENT_EMAIL }}
+        run: python Pipeline_WM_new_deals.py
