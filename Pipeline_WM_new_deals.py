@@ -150,6 +150,28 @@ def find_value(lines: list, label_re: str, value_re: str = None) -> str:
     return ""
 
 
+def parse_draftjs(s: str) -> str:
+    """
+    Extract plain text from Draft.js or Slate.js JSON.
+    WorkingMoni stores ExitPlan/PropertySummary as rich text JSON.
+    Draft.js format: [{"blocks":[{"text":"..."},...],"entityMap":{}}]
+    """
+    try:
+        data = json.loads(s)
+        if isinstance(data, list) and data:
+            data = data[0]
+        if isinstance(data, dict) and "blocks" in data:
+            texts = [
+                b.get("text", "").strip()
+                for b in data["blocks"]
+                if b.get("text", "").strip()
+            ]
+            return " ".join(texts)
+    except Exception:
+        pass
+    return ""
+
+
 def find_section(lines: list, start_re: str) -> str:
     """
     Collect all text between a section header and the next section header.
@@ -169,6 +191,21 @@ def find_section(lines: list, start_re: str) -> str:
         ):
             break
         if t:
+            # Draft.js / Slate.js JSON — parse and return plain text immediately
+            if t.startswith("[{") or t.startswith('{"blocks"'):
+                parsed = parse_draftjs(t)
+                if parsed:
+                    return parsed
+                continue   # unparseable JSON — skip line
+
+            # Skip pure numeric lines (stray LTV/percentage values, not real content)
+            if re.match(r"^\$?[\d,\.]+%?$", t):
+                continue
+
+            # Skip very short lines (under 8 chars) — not paragraph content
+            if len(t) < 8:
+                continue
+
             out.append(re.sub(r"^[*\u2022\u00b7\-]\s*", "", t))
         if len(out) > 60:
             break
