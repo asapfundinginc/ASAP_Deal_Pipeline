@@ -1,0 +1,36 @@
+# ASAP Pipeline - WorkingMoni Availability Check
+# Runs at 8:45 AM and 2:45 PM Pacific - 15 minutes before the new deal scraper
+# PDT (UTC-7): 15:45 and 21:45 UTC
+
+name: WorkingMoni Availability Check
+
+on:
+  schedule:
+    - cron: "45 15 * * *"    # 8:45 AM Pacific
+    - cron: "45 21 * * *"    # 2:45 PM Pacific
+  workflow_dispatch: {}       # manual trigger for testing
+
+jobs:
+  availability-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests gspread google-auth
+
+      - name: Run availability check
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GMAIL_ADDRESS:               ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:          ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL:             ${{ secrets.RECIPIENT_EMAIL }}
+        run: python Pipeline_WM_availability.py
