@@ -245,6 +245,7 @@
         <input class="i-borrower" placeholder="Borrower full name">
         <input id="b-house" class="i-house" placeholder="House #" style="display:none">
         <input id="b-addr" class="i-street" placeholder="Property address (incl. house #)">
+        <select id="b-state" title="Property state (passed to Creative Options)" style="height:32px;border:1px solid #cfd8e3;border-radius:8px;padding:0 6px;font-size:13px;color:#1b3a5c;background:#fff;min-width:66px"><option value="">State</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option></select>
         <input class="i-county" placeholder="County">
         <input class="i-phone" placeholder="Phone">
         <input class="i-email" placeholder="Email">
@@ -260,7 +261,7 @@
         <span class="rg-result" id="rg-result" style="display:none"></span>
       </div>
       <div class="act-nav">
-        <button class="btn" type="button" onclick="openSummaryActive()">Loan summary →</button>
+        <button class="btn" type="button" onclick="openCreativeActive()">Creative Options →</button>
         <button class="btn" type="button" onclick="asapOpenPitch()">Matched lenders →</button>
         <button class="btn" type="button" onclick="ssxNotesToggle()">Notes</button>
       </div>
@@ -324,15 +325,17 @@
       <div class="card">
         <h3>🏛️ Loan structure</h3>
         <div class="frow">
-          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="position" onchange="if(typeof window.ssxFromPos==='function'){window.ssxFromPos(this.value,event);}">
+          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="position" >
             <option selected>Sponsor cash equity</option>
-            <option>Money-partner / JV equity</option>
-            <option>Cross-collateral / additional property</option>
+            <option>Cash-out refi of another property (new 1st)</option>
             <option>Cash from HELOC / SBLOC</option>
             <option>2nd-position gap loan</option>
-            <option>Cash-out refi of another property (new 1st)</option>
             <option>Seller carryback (standby 2nd)</option>
-            <option>SDIRA / Solo 401k (non-recourse)</option></select></div></div>
+            <optgroup label="Less common">
+            <option>Money-partner / JV equity</option>
+            <option>Cross-collateral / additional property</option>
+            <option>SDIRA / Solo 401k (non-recourse)</option>
+            </optgroup></select></div></div>
         </div>
         <div class="frow">
           <div class="f"><label>1st position loan <span style="color:#9aa3af">(blank = auto)</span></label>
@@ -341,7 +344,7 @@
           <div class="f"><label>2nd position loan</label><div class="ibox"><span class="pre">$</span><input id="pos2" value="0"></div>
             <div class="mini gray" id="m_pos2">CLTV 0.0%</div></div>
         </div>
-        <div id="p_grade"></div><div style="margin:10px 0 0;"><button type="button" onclick="ssxOpen()" style="font-size:13px;font-weight:600;background:#eef4ff;color:#2563eb;border:1px solid #c4d7ff;border-radius:8px;padding:9px 16px;cursor:pointer;">Creative Options &#8594;</button></div>
+        <div id="p_grade"></div>
         
       </div>
 
@@ -539,13 +542,15 @@
             <div class="mini gray" id="km_pos2">CLTV 0.0%</div></div>
           <div class="f full" id="k_eqfield"><label>Equity / asset position</label><div class="ibox sel"><select id="k_position">
             <option selected>Sponsor cash equity</option>
-            <option>Money-partner / JV equity</option>
-            <option>Cross-collateral / additional property</option>
+            <option>Cash-out refi of another property (new 1st)</option>
             <option>Cash from HELOC / SBLOC</option>
             <option>2nd-position gap loan</option>
-            <option>Cash-out refi of another property (new 1st)</option>
             <option>Seller carryback (standby 2nd)</option>
-            <option>SDIRA / Solo 401k (non-recourse)</option></select></div></div>
+            <optgroup label="Less common">
+            <option>Money-partner / JV equity</option>
+            <option>Cross-collateral / additional property</option>
+            <option>SDIRA / Solo 401k (non-recourse)</option>
+            </optgroup></select></div></div>
         </div>
         <div id="k_grade"></div>
         
@@ -1007,20 +1012,23 @@
       <div class="card">
         <h3>🏛️ Loan structure</h3>
         <div class="frow">
-          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="c_position" onchange="if(typeof window.ssxFromPosC==='function'){window.ssxFromPosC(this.value,event);}">
+          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="c_position" >
             <option selected>Sponsor cash equity</option>
+            <option>Cash-out refi of another property (new 1st)</option>
+            <option>Cash from HELOC / SBLOC</option>
+            <option>2nd-position gap loan</option>
+            <option>Seller carryback (standby 2nd)</option>
+            <optgroup label="Less common">
             <option>Money-partner / JV equity</option>
             <option>Cross-collateral / additional property</option>
-            <option>Cash-out refi of another property (new 1st)</option>
-            <option>Seller carryback (standby 2nd)</option>
             <option>Mezzanine / preferred equity</option>
             <option>SDIRA / Solo 401k (non-recourse)</option>
-            <option>2nd-position gap loan</option></select></div></div>
+            </optgroup></select></div></div>
           <div class="f full"><label>1st position loan <span style="color:#9aa3af">(blank = auto)</span></label>
             <div class="ibox"><span class="pre">$</span><input id="c_loan" placeholder="auto"></div>
             <div class="mini" id="cm_loan">Sized to the lowest of LTV / DSCR / Debt-Yield</div></div>
         </div>
-        <div id="c_grade"></div><div style="margin:10px 0 0;"><button type="button" onclick="ssxOpen(null,'commercial')" style="font-size:13px;font-weight:600;background:#eef4ff;color:#2563eb;border:1px solid #c4d7ff;border-radius:8px;padding:9px 16px;cursor:pointer;">Creative Options &#8594;</button></div>
+        <div id="c_grade"></div>
         
       </div>
 
@@ -1149,7 +1157,7 @@
             <option value="" selected>&mdash; not provided</option><option>740+</option><option>680 &#8211; 739</option><option value="exact">Below min &mdash; enter exact score&hellip;</option></select></div><div id="ld_ficoexactfield" style="display:none;margin-top:7px"><label>Exact FICO score</label><div class="ibox"><input id="ld_ficoexact" value=""><span class="suf">FICO</span></div></div></div>
           <div class="f"><label>Experience</label><div class="ibox sel"><select id="ld_exp">
             <option value="Self-Starter (0-2 deals)">Tier 0 &mdash; 0 deals completed</option><option value="Plus (3-9 deals)">Tier 1 &mdash; 1 deal completed</option><option value="Plus (3-9 deals)" selected>Tier 2-4 &mdash; 2-4 deals completed</option><option value="Pro (10+ deals)">Tier 5+ &mdash; 5+ deals completed</option></select></div></div>
-          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="ld_position" onchange="if(typeof window.ssxFromPosLd==='function'){window.ssxFromPosLd(this.value,event);}">
+          <div class="f full"><label>Equity / asset position</label><div class="ibox sel"><select id="ld_position" >
             <option selected>Land owned free &amp; clear</option>
             <option>Land with existing liens</option>
             <option>Buying the land at close</option>
@@ -1428,8 +1436,8 @@
     var reason = '';
     if (!eligible) {
       if (!typeOK) reason = 'Property type not supported (needs commercial DSCR)';
-      else if (!ficoOK) reason = 'FICO below 640 — not eligible';
-      else if (W2 === 5 && i.purpose !== 'DSCR Purchase') reason = '640–659 FICO: purchase only — cashout/refi needs 660+';
+      else if (!ficoOK) reason = 'FICO below 640 — outside Easy Street\u2019s DSCR box; price with an alternate lender (enter their rate as an override)';
+      else if (W2 === 5 && i.purpose !== 'DSCR Purchase') reason = '640\u2013659 FICO: Easy Street allows purchase only \u2014 for cashout/refi price with an alternate lender';
       else if (maxF <= 0) reason = 'Rent too low to support a DSCR loan at this FICO';
       else reason = 'Over max — max fundable $' + Math.round(maxF).toLocaleString();
     }
@@ -2093,7 +2101,7 @@ function renderDSCR(){
   $('kd_cashout').parentElement.classList.toggle('get', !kBring);
 
   $('kr_loan').textContent = o.eligible ? fmt$(loan) : 'Not eligible';
-  $('kr_tier').innerHTML = o.hasTier ? ('Tier: ' + o.tierName + ' \u00b7 <span class="ok">\u2713 ELIGIBLE</span>') : ('<span class="no">\u2717 ' + (o.reason || 'Not eligible') + '</span>');
+  $('kr_tier').innerHTML = o.hasTier ? ('Tier: ' + o.tierName + ' \u00b7 <span class="ok">\u2713 ELIGIBLE</span>') : ((o.reason||'').indexOf('alternate lender') >= 0 ? ('<span class="warn">\u26a0 ' + o.reason + '</span>') : ('<span class="no">\u2717 ' + (o.reason || 'Not eligible') + '</span>'));
   if (o.eligible && i.requested > 0 && loan + 0.5 >= i.requested) $('kr_covers').innerHTML = '<span class="ok">Covers the full ' + fmt$(i.requested) + ' requested</span>';
   else if (o.eligible && i.requested > 0) $('kr_covers').innerHTML = '<span class="warn">' + fmt$(loan) + ' of ' + fmt$(i.requested) + ' requested \u2014 max fundable</span>';
   else $('kr_covers').textContent = '';
@@ -2421,6 +2429,8 @@ function commercialDocs(){
 
 var CC_POS = {
   'Sponsor cash equity':                    { tier:'u', rec:'r1', note:'Sponsor brings the down from cash or liquidity. Cleanest — funds with no overlays.' },
+  'Cash-out refi of another property (new 1st)': { tier:'b', rec:'r1', note:'Equity pulled from another owned property funds the down — counts as the sponsor\u2019s own cash once seasoned in account.' },
+  'Cash from HELOC / SBLOC':                { tier:'b', rec:'r1', note:'Down + closing sourced from a primary HELOC or securities line \u2014 counts as the sponsor\u2019s own funds.' },
   'Money-partner / JV equity':              { tier:'u', rec:'r3', note:'An equity partner funds the gap; both sponsors are underwritten.' },
   'Cross-collateral / additional property': { tier:'l', rec:'r2', note:'Pledge equity in an owned property to cut cash to close, but most HM lenders do this only by exception. Cleanest when the property is free-and-clear; confirm the lender will cross before quoting.' },
   'Seller carryback (standby 2nd)':         { tier:'b', rec:'r2', note:'Seller carries part of the price on a standby 2nd, reducing cash to close.' },
@@ -2430,6 +2440,8 @@ var CC_POS = {
 };
 var CC_POS_DOCS = {
   'Sponsor cash equity':['Proof of funds (cash / liquidity)','Source-of-funds letter'],
+  'Cash-out refi of another property (new 1st)':['Refi term sheet / approval on the other property','Payoff + net-proceeds estimate'],
+  'Cash from HELOC / SBLOC':['HELOC / SBLOC availability statement','Source-of-funds letter'],
   'Money-partner / JV equity':['JV / partnership agreement','Partner PFS + proof of funds','Partner entity / KYC docs'],
   'Cross-collateral / additional property':['Additional collateral — deed + title','Cross-collateralization agreement','Appraisal on pledged property'],
   'Seller carryback (standby 2nd)':['Seller carry note','Standby / subordination agreement'],
@@ -2438,7 +2450,7 @@ var CC_POS_DOCS = {
   '2nd-position gap loan':['2nd-position lender term sheet','Intercreditor / subordination agreement']
 };
 var GRADE = {
-  u:{ cls:'gu', label:'SLAM DUNK · ~100% ACCEPT' },
+  u:{ cls:'gu', label:'SLAM DUNK · ABOUT 100% ACCEPT' },
   b:{ cls:'gb', label:'BROADLY ACCEPTED · RIGHT DOCS' },
   l:{ cls:'gl', label:'NICHE ONLY · LENDER-SPECIFIC' }
 };
@@ -3987,7 +3999,7 @@ switchTab('BFF');
     if(p.sale){
       var net=Math.round(arv*0.93-D.loan);
       lines.push(['Primary exit',ex==='lots'?'lot / unit sales release the loan in stages':'sale pays off the bridge']);
-      if(arv>0)lines.push(['Est. '+K(arv)+' \u00d7 93% (after ~7% costs) \u2212 '+K(D.loan)+' payoff',(net>=0?K(net)+' est. net to borrower':'short '+K(-net))]);
+      if(arv>0)lines.push(['Est. '+K(arv)+' \u00d7 93% (after about 7% costs) \u2212 '+K(D.loan)+' payoff',(net>=0?K(net)+' est. net to borrower':'short '+K(-net))]);
       lines.push(['Fallback if the market slows','30-yr DSCR refi \u2014 arranged in advance']);
     } else {
       var __L0=__man?Math.round(__lv):Math.round(arv*ltv);
@@ -4127,7 +4139,7 @@ switchTab('BFF');
       }
     } else {
       s1rows=[['Rate \u00b7 term',D.sRate+'% IO \u00b7 '+D.sTerm+'-mo'],['Funds the purchase + project',K(D.loan)+' \u2713','#15803d'],['Cash to close',K(D.cashClose)],['Monthly loan payment',M(subjPayMo)]];
-      s2rows=isSale?[['Est. sale price',K(T.arv||0)],['Less ~7% costs + payoff',K(Math.round((T.arv||0)*0.07))+' + '+K(D.loan)],['Est. net to you',K(Math.round((T.arv||0)*0.93-D.loan)),'#15803d']]
+      s2rows=isSale?[['Est. sale price',K(T.arv||0)],['Less about 7% costs + payoff',K(Math.round((T.arv||0)*0.07))+' + '+K(D.loan)],['Est. net to you',K(Math.round((T.arv||0)*0.93-D.loan)),'#15803d']]
                    :[['Rate \u00b7 term',rate.toFixed(2)+'% \u00b7 30-yr'+(T.pay==='io'?' IO':'')],['Pays off the bridge',K(D.loan)+' \u2713','#15803d'],['Monthly payment',M(mo)]];
     }
     H='<table width="700" cellpadding="0" cellspacing="0" border="0" style="width:700px;max-width:700px;border-collapse:collapse;background:#eef0f3;">'+
@@ -4808,6 +4820,75 @@ switchTab('BFF');
     var dt=activeTab();
     var fn = dt==='Commercial'?'openCommTemplate' : dt==='LandDev'?'openLdTemplate' : dt==='BFF'?'openBffTemplate' : 'openDscrTemplate';
     if(typeof window[fn]==='function') window[fn]();
+  };
+  /* Pre-fetch the web-app base URL so the Creative Options window opens synchronously (no popup-blocker). */
+  try{ if(typeof google!=='undefined'&&google.script&&google.script.run){ google.script.run.withSuccessHandler(function(u){ window.__creativeBase=u||''; }).withFailureHandler(function(){}).getWebAppUrl(); } }catch(eCB){}
+  function __mapProp(s){ s=String(s||'').toLowerCase();
+    if(/2\s*-\s*4|two to four|duplex|triplex|fourplex/.test(s)) return 'u24';
+    if(/condo|town/.test(s)) return 'condo';
+    if(/5\s*-\s*10|11\+|multi|apartment|\bmf\b/.test(s)) return 'mf5';
+    if(/mixed/.test(s)) return 'mixed';
+    if(/commercial|office|retail|industrial|storage|hospitality/.test(s)) return 'com';
+    if(/\bland\b/.test(s)) return 'land';
+    return 'sfr'; }
+  function __mapExp(s){ s=String(s||'').toLowerCase();
+    if(/tier\s*0|(^|\D)0(\D|$)|first.?time|no experience/.test(s)) return '0';
+    if(/tier\s*1|(^|\D)1(\D|$)/.test(s)) return '1';
+    if(/5\s*\+|tier\s*5|5 or more/.test(s)) return '5+';
+    return '2-4'; }
+  function __pfico(f){ if(f==null) return ''; var m=String(f).match(/\d{3}/); return m?m[0]:''; }
+  function buildCreativePayload(){
+    var tab=activeTab();
+    var st=(document.getElementById('b-state')||{}).value||'';
+    var p={tab:tab, state:st};
+    var __nm=document.querySelector('.i-borrower')||document.querySelector('input[placeholder="Borrower full name"]');
+    if(__nm && String(__nm.value||'').trim()) p.name=String(__nm.value).trim();
+    var __ad=document.getElementById('b-addr');
+    if(__ad && String(__ad.value||'').trim()) p.addr=String(__ad.value).trim();
+    try{
+      if(tab==='Commercial' && typeof window.readCommercial==='function'){
+        var di=window.readCommercial();
+        p.program='cperm'; p.purpose='purchase'; p.prop='com'; p.occ='inv';
+        p.val=di.value||di.price||0; p.noi=di.noi||0;
+        p.apts=(di.asapPct||0)*100; p.esc=(di.escrowPct||0)*100; p.uw=di.uw||0; p.doc=di.loanDoc||0; p.appr=di.appraisal||0;
+        p.fico='760';
+      } else if(tab==='LandDev' && typeof window.readLandDev==='function'){
+        var ldi=window.readLandDev();
+        p.program='guc'; p.purpose='purchase'; p.prop='u24'; p.occ='vac';
+        p.pp=ldi.land||0; p.rehab=ldi.budget||0; p.arv=ldi.retail||0;
+        p.uw=(ldi.uw||0)+(ldi.servicing||0); p.doc=ldi.loanDoc||0; p.appr=ldi.appraisal||0; p.fico=__pfico(ldi.fico);
+      } else if(tab==='DSCR' && typeof window.readDSCR==='function'){
+        var ki=window.readDSCR();
+        p.program='dscr'; p.purpose=/purchase/i.test(ki.purpose)?'purchase':(/cash/i.test(ki.purpose)?'co':'rt');
+        p.prop=__mapProp(ki.propType); p.occ='inv';
+        p.val=ki.propValue||0; p.rent=ki.grossRent||0; p.ti=(ki.insMo||0)+(ki.hoaMo||0); if(ki.purchasePrice) p.pp=ki.purchasePrice;
+        p.apts=(ki.asapPct||0)*100; p.esc=(ki.escrowPct||0)*100; p.uw=ki.uw||0; p.doc=ki.loanDoc||0; p.appr=ki.appraisal||0;
+        p.fico=__pfico(ki.fico); if(p.purpose!=='purchase') p.bal=(ki.lender1||0);
+      } else if(typeof window.read==='function'){
+        var pi=window.read(); var isBr=!!pi.bridge; var reh=isBr?0:(pi.rehab||0);
+        p.program=isBr?'bridge':'ff'; p.purpose='purchase'; p.prop=__mapProp(pi.ptype); p.occ='vac';
+        p.pp=pi.pp||0; p.rehab=reh; p.arv=pi.arv||0; if(pi.asIs) p.val=pi.asIs;
+        p.pts=(pi.lenderPts||0)*100; p.apts=(pi.asapPts||0)*100; p.esc=(pi.escrowPct||0)*100;
+        p.uw=pi.uw||0; p.doc=pi.loanDoc||0; p.appr=pi.appraisal||0; p.fico=__pfico(pi.fico);
+      }
+    }catch(ePL){}
+    var expEl=document.getElementById(tab==='DSCR'?'k_fti':'exp');
+    var ev=(document.getElementById('exp')||{}).value||''; if(ev) p.exp=__mapExp(ev);
+    return p;
+  }
+  window.openCreativeActive=function(){
+    /* Opens Creative Options in a SEPARATE window and hands the active tab's subject deal to Leg B via the URL. */
+    var payload=buildCreativePayload();
+    function openWith(base){
+      var q='creative=1&hp='+encodeURIComponent(JSON.stringify(payload));
+      var url=base?(base+(base.indexOf('?')>=0?'&':'?')+q):('?'+q);
+      var win=window.open(url,'asapCreativeOptions','width=1200,height=920,scrollbars=yes,resizable=yes');
+      if(!win){ try{ alert('Please allow pop-ups for this site so Creative Options can open in its own window.'); }catch(e){} }
+    }
+    if(window.__creativeBase){ openWith(window.__creativeBase); }
+    else if(typeof google!=='undefined'&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(function(u){ window.__creativeBase=u||''; openWith(window.__creativeBase); }).withFailureHandler(function(){ openWith(''); }).getWebAppUrl();
+    } else { openWith(''); }
   };
   window.openMatchedLenders=function(){
     var ov=document.getElementById('mlOverlay'); if(!ov) return;
@@ -5550,7 +5631,7 @@ switchTab('BFF');
       // 3) PDF — only if a new/changed file is selected
       if(willTitle){
         window.__lastFileSig=fileSig;
-        if(file.size > 18*1024*1024){ tfStatus('That file is large \u2014 use a PDF under ~18 MB.'); refreshDone(); }
+        if(file.size > 18*1024*1024){ tfStatus('That file is large \u2014 use a PDF under about 18 MB.'); refreshDone(); }
         else {
           tfStatus('Reading the document\u2026 this can take 20\u201340 seconds.');
           var reader=new FileReader();
@@ -5589,12 +5670,12 @@ switchTab('BFF');
       var isCashout = /cashout|cash-out|refi/.test(String(fd.cat||'').toLowerCase()+' '+String(fd.purpose||'').toLowerCase());
       var months = monthsSince(pd.lastSaleDate);
       if(isCashout && months!=null && months < 12){
-        flags.push({sev:(months<6?'hard':'medium'), name:'Sub-12-month seasoning on a cash-out ('+Math.round(months)+' mo)', threat:'Within ~12 mo many lenders cap cash-out at the lower of appraised value or cost basis.', ask:['When acquired, and for how much (closing statement)?','Documented rehab since purchase?','All-cash arm\u2019s-length purchase (delayed financing)?'], docs:['Settlement statement','Rehab receipts / proof of funds','Recorded deed'], lenders:'Short-seasoned: Easy Street (appraised value at 3 mo, 70% LTV / 700 FICO). Strict: Kiavi (6-mo), CF1.', topic:'seasoning', solution:{primary:'If owned \u226512 mo \u2192 full appraised-value cash-out, no seasoning restriction.', fallback:'If 3\u201312 mo \u2192 an appraised-value lender (Easy Street: appraised value at 3 mo / 70% LTV / 700 FICO); or document rehab to lift the cost basis.', lastResort:'If <3 mo or low cost basis with no appraised-value lender \u2192 cap at cost basis, or wait to 12 mo.'}});
+        flags.push({sev:(months<6?'hard':'medium'), name:'Sub-12-month seasoning on a cash-out ('+Math.round(months)+' mo)', threat:'Within about 12 mo many lenders cap cash-out at the lower of appraised value or cost basis.', ask:['When acquired, and for how much (closing statement)?','Documented rehab since purchase?','All-cash arm\u2019s-length purchase (delayed financing)?'], docs:['Settlement statement','Rehab receipts / proof of funds','Recorded deed'], lenders:'Short-seasoned: Easy Street (appraised value at 3 mo, 70% LTV / 700 FICO). Strict: Kiavi (6-mo), CF1.', topic:'seasoning', solution:{primary:'If owned \u226512 mo \u2192 full appraised-value cash-out, no seasoning restriction.', fallback:'If 3\u201312 mo \u2192 an appraised-value lender (Easy Street: appraised value at 3 mo / 70% LTV / 700 FICO); or document rehab to lift the cost basis.', lastResort:'If <3 mo or low cost basis with no appraised-value lender \u2192 cap at cost basis, or wait to 12 mo.'}});
       }
       if(pd.value && compareVal){
         var gap = Math.abs(pd.value - compareVal)/compareVal;
         if(gap >= 0.15){
-          flags.push({sev:'medium', name:'Value vs public record (~'+Math.round(gap*100)+'% gap)', threat:'The value the deal rests on may not appraise \u2014 public/comp value is $'+Math.round(pd.value).toLocaleString()+' vs your $'+Math.round(compareVal).toLocaleString()+'.', ask:['Where\u2019s the gap from \u2014 unpermitted addition, county error, recent reno?','Permits or an appraisal backing the higher number?'], docs:['Appraisal','Permit history','Tax card'], lenders:'Lender-agnostic \u2014 all size to the appraisal. Re-size to supportable value.', topic:'value_gap', solution:{primary:'If permits or an appraisal support the higher value \u2192 proceed; the loan sizes to the appraisal.', fallback:'If the gap is an unpermitted addition or county error \u2192 re-size the loan to the supportable (lower) value.', lastResort:'If the value can\u2019t be supported at all \u2192 the deal shrinks to what appraises, or doesn\u2019t pencil.'}});
+          flags.push({sev:'medium', name:'Value vs public record (about '+Math.round(gap*100)+'% gap)', threat:'The value the deal rests on may not appraise \u2014 public/comp value is $'+Math.round(pd.value).toLocaleString()+' vs your $'+Math.round(compareVal).toLocaleString()+'.', ask:['Where\u2019s the gap from \u2014 unpermitted addition, county error, recent reno?','Permits or an appraisal backing the higher number?'], docs:['Appraisal','Permit history','Tax card'], lenders:'Lender-agnostic \u2014 all size to the appraisal. Re-size to supportable value.', topic:'value_gap', solution:{primary:'If permits or an appraisal support the higher value \u2192 proceed; the loan sizes to the appraisal.', fallback:'If the gap is an unpermitted addition or county error \u2192 re-size the loan to the supportable (lower) value.', lastResort:'If the value can\u2019t be supported at all \u2192 the deal shrinks to what appraises, or doesn\u2019t pencil.'}});
         }
       }
       if(/manufactured|mobile|modular|\blog\b|geodesic|dome|barndomin/.test(ptype)){
@@ -6039,7 +6120,7 @@ tidyQuestionsNow = af_tidyQuestionsNow;
       var inp=document.querySelector('.js-tf-file');
       var file=(inp&&inp.files&&inp.files[0])?inp.files[0]:null;
       if(!file){ tfStatus('Choose a PDF first, then click again.'); return; }
-      if(file.size > 18*1024*1024){ tfStatus('That file is large ('+Math.round(file.size/1048576)+' MB). Use the text-based prelim title report or a PDF under ~18 MB.'); return; }
+      if(file.size > 18*1024*1024){ tfStatus('That file is large ('+Math.round(file.size/1048576)+' MB). Use the text-based prelim title report or a PDF under about 18 MB.'); return; }
       tfBusy(true); tfStatus('Reading the document\u2026 this can take 20\u201340 seconds.');
       var reader=new FileReader();
       reader.onerror=function(){ tfBusy(false); tfStatus('Could not read that file. Try again.'); };
@@ -7278,7 +7359,7 @@ tidyQuestionsNow = af_tidyQuestionsNow;
     try{
     if(t==='dscr'){
       var ratio=parseFloat(String(T('kr_dscr')).replace(/[^0-9.]/g,''))||0, pt=V('k_ptype'), multi=/5-10/.test(pt);
-      if(ratio>0 && ratio<1.00 && !multi) F.push({sev:'medium', topic:'ps_noratio', name:'DSCR '+ratio.toFixed(2)+' — below 1.00x', threat:'Below break-even most lenders shift to Reduced-DSCR (0.75+, ~680+ FICO, 75/70 LTV) or No-Ratio (~720+ FICO, 70/65 LTV) pricing. The engine already prices these tiers — leverage and rate step down.', ask:['Is the rent figure market or actual lease?','Any path to higher rent (STR, rent bump at renewal)?'], docs:['Lease or 1007 market rent schedule'], lenders:'Easy Street Standard/Signature: NO DSCR minimum. Streamline floors at 0.75x.', solution:{primary:'If FICO 680+ \u2192 Reduced-DSCR tier prices automatically at 75/70 LTV.', fallback:'If FICO 720+ and ratio very thin \u2192 No-Ratio tier at 70/65 LTV.', lastResort:'Resize the loan down until the ratio clears, or improve the income basis.'}});
+      if(ratio>0 && ratio<1.00 && !multi) F.push({sev:'medium', topic:'ps_noratio', name:'DSCR '+ratio.toFixed(2)+' — below 1.00x', threat:'Below break-even most lenders shift to Reduced-DSCR (0.75+, about 680+ FICO, 75/70 LTV) or No-Ratio (about 720+ FICO, 70/65 LTV) pricing. The engine already prices these tiers — leverage and rate step down.', ask:['Is the rent figure market or actual lease?','Any path to higher rent (STR, rent bump at renewal)?'], docs:['Lease or 1007 market rent schedule'], lenders:'Easy Street Standard/Signature: NO DSCR minimum. Streamline floors at 0.75x.', solution:{primary:'If FICO 680+ \u2192 Reduced-DSCR tier prices automatically at 75/70 LTV.', fallback:'If FICO 720+ and ratio very thin \u2192 No-Ratio tier at 70/65 LTV.', lastResort:'Resize the loan down until the ratio clears, or improve the income basis.'}});
       if(ratio>0 && ratio<1.15 && multi) F.push({sev:'medium', topic:'ps_multifloor', name:'DSCR '+ratio.toFixed(2)+' on 5-10 units — under the common 1.15x floor', threat:'Many small-multi DSCR lenders floor 5+ units at 1.15x; below it the deal narrows to a handful of lenders or pivots to commercial bridge.', ask:['Any below-market units or upcoming rent bumps?','Landlord-paid utilities dragging NOI?'], docs:['Rent roll with lease terms','Trailing 12 operating statement'], lenders:'Easy Street Standard: 5-10 units eligible with NO DSCR minimum \u2014 strongest home for this.', solution:{primary:'Place with Easy Street Standard (no minimum) or another no-floor small-multi lender.', fallback:'Underwrite achievable market rents (1007/1025) to lift the ratio.', lastResort:'Pivot to commercial bridge and refinance once stabilized.'}});
       if(/^no/i.test(V('k_submeter')) && multi) F.push({sev:'ask', topic:'ps_submeter', name:'Landlord pays all utilities', threat:'Master-metered buildings run heavier expense ratios \u2014 lenders underwrite more expense off the rent. Mgmt/repair defaults were bumped (editable).', ask:['Exact monthly utility bill across the building?','Any plan to sub-meter or bill back (RUBS)?'], docs:['12 months of utility bills'], lenders:'', solution:null});
     }
@@ -7480,7 +7561,7 @@ tidyQuestionsNow = af_tidyQuestionsNow;
     if(t==='dscr'){ var pt=V('k_ptype'), multi=/5-10/.test(pt);
       return [tile('Typical LTV','75-80% purchase \u00b7 70-75% cash-out'), tile('DSCR floors','1.00x best pricing \u00b7 0.75x tier \u00b7 No-Ratio 720+'), tile('Reserves','2-12 mo PITIA by loan size'), tile('Valuation','Sales comparison + 1007 rent'), multi?tile('5-10 units','Many floor at 1.15x \u00b7 Easy Street: none'):tile('Seasoning','12 mo full value \u00b7 3-6 mo reduced')]; }
     if(t==='purchase') return [tile('Typical LTC','85-90%, experience-tiered'), tile('LTARV cap','70-75%'), tile('Experience','Tiers drive leverage + rate'), tile('Valuation','As-is + ARV appraisal'), tile('Liquidity','Cash to close + payment cushion')];
-    if(t==='refi') return [tile('Typical LTARV','65-75% by experience'), tile('Cash-out','Seasoning-sensitive under 12 mo'), tile('2nd liens','Rare \u00b7 ~70% CLTV where offered'), tile('Valuation','As-is + ARV appraisal'), tile('Liquidity','Reserves after cash-out counted')];
+    if(t==='refi') return [tile('Typical LTARV','65-75% by experience'), tile('Cash-out','Seasoning-sensitive under 12 mo'), tile('2nd liens','Rare \u00b7 about 70% CLTV where offered'), tile('Valuation','As-is + ARV appraisal'), tile('Liquidity','Reserves after cash-out counted')];
     if(t==='commercial'){ var pt2=V('c_ptype'), ind=(pt2==='Industrial'||pt2==='Self-Storage'), mf=pt2.indexOf('Multifamily')===0;
       return [tile('Typical LTV','65-75% \u00b7 strong stabilized to 80%'), mf?tile('DSCR floor','1.20-1.25x stabilized \u00b7 bridge often none at close'):tile('Debt yield floor',(ind?'8% (industrial/storage)':'8-10% by asset class')+' \u2014 loan resizes to clear'), tile('Valuation','Income approach \u2014 cap rate on NOI'), tile('Market','50K+ MSA population preferred'), tile('Sponsorship','Net worth \u2248 loan \u00b7 10% liquidity')]; }
     if(t==='landdev'){ var st=V('ld_stage'), lev=(st==='Raw land / entitlement')?'50-65% of as-is value (unentitled prices lower)':(st==='Vertical / ground-up homes'?'80-85% LTC \u00b7 aggressive to 90%':(st==='Horizontal / land development'?'65-80% LTC':'70-85% LTC \u00b7 aggressive to 90%'));

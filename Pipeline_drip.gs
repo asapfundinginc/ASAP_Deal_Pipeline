@@ -318,7 +318,13 @@ function pipeline_dripSweep() {
         '</p><p style="font-size:11px;color:#777;margin:8px 0 0;">If you\'d rather not receive these check-ins, just reply and let me know.</p></div>';
       var plain = body + '\n\n' + sig.plain + '\n\nDISCLAIMER: ' + disc + '\n\nIf you\'d rather not receive these check-ins, just reply and let me know.';
       try {
-        GmailApp.sendEmail(email, t.s, plain, { htmlBody: html, name: DRIP_SENDER_NAME[conf.sender] || 'ASAP Funding' });
+        // The signature references cid:danielphoto — the image must be attached inline or
+        // it renders as a broken icon (the bug DK saw). replyTo routes replies correctly.
+        var sendOpts = { htmlBody: html, name: DRIP_SENDER_NAME[conf.sender] || 'ASAP Funding', replyTo: sig.replyTo };
+        if (html.indexOf('cid:danielphoto') >= 0) {
+          try { sendOpts.inlineImages = { danielphoto: Utilities.newBlob(Utilities.base64Decode(DK_PHOTO_B64), 'image/jpeg', 'dk.jpg') }; } catch (eImg) {}
+        }
+        GmailApp.sendEmail(email, t.s, plain, sendOpts);
         sh.getRange(r + 1, cSt + 1).setValue(step + 1);
         sh.getRange(r + 1, cLs + 1).setValue(now);
         if (cTouch >= 0) sh.getRange(r + 1, cTouch + 1).setValue(now);
@@ -401,6 +407,29 @@ function drip_template_(camp, idx, ov) {
   var o = (ov || drip_overrides_())[camp + '|' + idx];
   return o && (o.s || o.b) ? { s: o.s || base.s, b: o.b || base.b, edited: true } : { s: base.s, b: base.b, edited: false };
 }
+/* Full assembled preview for the campaign email editor: body + the campaign's
+ * configured sender signature + disclaimer, with cid images swapped to data URIs
+ * so it renders in the browser exactly as the sent email will look. */
+function pipeline_dripPreviewEmail(camp, idx, subjOverride, bodyOverride) {
+  try {
+    var g = pipeline_dripGetEmail(camp, idx);
+    if (!g || !g.ok) return g || { ok: false, error: 'Email not found.' };
+    var subject = (subjOverride != null && String(subjOverride).trim() !== '') ? String(subjOverride) : g.subject;
+    var rawBody = (bodyOverride != null && String(bodyOverride).trim() !== '') ? String(bodyOverride) : g.body;
+    var cfg = drip_cfg_(); var conf = cfg[String(camp)] || {};
+    var sender = conf.sender || 'daniel';
+    var sig = Pipeline_senderSig_(sender), disc = ASAP_disclaimer_();
+    function esc(x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    var body = String(rawBody).split('{FIRST}').join('Jonn');
+    var html = '<div style="font-family:Arial,Helvetica,sans-serif;color:#1a2230;font-size:14px;line-height:1.55;max-width:800px;">' +
+      esc(body).replace(/\n/g, '<br>') + '<br><br>' + sig.html +
+      '<br><br><p style="font-family:Georgia,\'Times New Roman\',serif;font-size:11px;color:#444;line-height:1.45;text-align:justify;margin:0;"><strong>DISCLAIMER:</strong> ' + disc +
+      '</p><p style="font-size:11px;color:#777;margin:8px 0 0;">If you\'d rather not receive these check-ins, just reply and let me know.</p></div>';
+    html = Pipeline_inviteToPreview_(html);   // cid: -> data: URIs for the browser
+    return { ok: true, subject: subject, html: html, from: (DRIP_SENDER_NAME[sender] || 'ASAP Funding') };
+  } catch (err) { return { ok: false, error: String(err) }; }
+}
+
 function pipeline_dripGetEmail(camp, idx) {
   try {
     var t = drip_template_(String(camp), parseInt(idx, 10));

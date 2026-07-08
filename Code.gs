@@ -42,6 +42,14 @@ if (e && e.parameter && e.parameter.dashboard !== undefined) return Pipeline_ser
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
 
+  // Creative Options structuring page — opens with ?creative=1 (served as its own window from the calculator)
+  if (e && e.parameter && e.parameter.creative !== undefined) {
+    return HtmlService.createHtmlOutputFromFile('CreativeOptions')
+      .setTitle('ASAP Creative Options')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+
   var p = (e && e.parameter) ? e.parameter : {};
 
   // Upload mode: borrower returning via the follow-up link to add remaining documents
@@ -119,6 +127,43 @@ function deleteDraft(token) {
   try { var root = getDraftsRoot(), it = root.getFoldersByName(token); if (it.hasNext()) it.next().setTrashed(true); } catch (e) {}
 }
 function getWebAppUrl() { try { return ScriptApp.getService().getUrl(); } catch (e) { return ''; } }
+
+/* ===== Creative Options layout persistence (server-side, keyed by deal address) =====
+ * Same fix as CalcNotes: the browser's localStorage is cleared/partitioned inside Google's
+ * sandboxed iframe, so the multi-leg layout is stored on a self-created CreativeLayouts tab,
+ * keyed by a normalized deal address, and restored from there on reopen. */
+function _cly_sheet_() {
+  var ss = ss_();
+  var sh = ss.getSheetByName('CreativeLayouts');
+  if (!sh) { sh = ss.insertSheet('CreativeLayouts'); sh.getRange(1, 1, 1, 3).setValues([['DealKey', 'LayoutJSON', 'Updated']]).setFontWeight('bold'); }
+  return sh;
+}
+function _cly_norm_(s) { return String(s || '').toLowerCase().replace(/[^0-9a-z]+/g, ''); }
+function pipeline_saveCreativeLayout(dealKey, json) {
+  try {
+    var key = _cly_norm_(dealKey);
+    if (!key) return { ok: false, error: 'Missing deal key.' };
+    var sh = _cly_sheet_();
+    var vals = sh.getDataRange().getValues();
+    var rowIdx = -1;
+    for (var r = 1; r < vals.length; r++) { if (_cly_norm_(vals[r][0]) === key) { rowIdx = r + 1; break; } }
+    var s = String(json == null ? '' : json); if (s.length > 45000) s = s.slice(0, 45000);
+    if (rowIdx < 0) { rowIdx = sh.getLastRow() + 1; sh.getRange(rowIdx, 1).setValue(dealKey); }
+    sh.getRange(rowIdx, 2).setValue(s);
+    sh.getRange(rowIdx, 3).setValue(new Date());
+    return { ok: true };
+  } catch (err) { return { ok: false, error: String(err) }; }
+}
+function pipeline_getCreativeLayout(dealKey) {
+  try {
+    var key = _cly_norm_(dealKey);
+    if (!key) return '';
+    var sh = _cly_sheet_();
+    var vals = sh.getDataRange().getValues();
+    for (var r = 1; r < vals.length; r++) { if (_cly_norm_(vals[r][0]) === key) return String(vals[r][1] || ''); }
+    return '';
+  } catch (err) { return ''; }
+}
 
 /* Single source of truth for the email footer disclaimer (used by invite, pitch,
    resume-link, docs-followup, and borrower-questions emails). */
@@ -373,9 +418,7 @@ function gradeDeal(d){
       taxesM=num(d.taxesMonthly), insM=num(d.insuranceMonthly), hoaM=num(d.hoaMonthly);
 
   // tier + fico
-  var et=(d.experienceTier||'');
-  var tier=(et.indexOf('Pro')>-1||et.indexOf('10+')>-1||et.indexOf('Tier 5')===0)?'Pro'
-          :((et.indexOf('Plus')>-1||et.indexOf('3-9')>-1||et.indexOf('3\u20139')>-1||et.indexOf('Tier 2')===0)?'Plus':'Self-Starter');
+  var et=(d.experienceTier||''); var tier=(et.indexOf('Pro')>-1||et.indexOf('10+')>-1)?'Pro':((et.indexOf('Plus')>-1||et.indexOf('3-9')>-1||et.indexOf('3\u20139')>-1)?'Plus':'Self-Starter');
   var cb=(d.creditBand||''); var fm=cb.match(/(\d{3})/); var fico=(cb.indexOf('Below')>-1||cb.indexOf('<')>-1)?600:(fm?parseInt(fm[1]):NaN);
   function ficoAdjRehab(f){ if(!isFinite(f))return 0; if(f>=750)return -0.0025; if(f>=700)return 0; return 0.005; }
   function ficoAdjDSCR(f){ if(!isFinite(f))return 0; if(f>=760)return -0.0025; if(f>=720)return 0; if(f>=680)return 0.0025; if(f>=660)return 0.0075; if(f>=640)return 0.015; return 99; }
@@ -600,32 +643,6 @@ function pipeline_createDealFromApp_(appDealId, data, snap, folderUrl) {
     if (!sh) return '';
     try { pipeline_ensureColumns_(); } catch (e) {}
     var H = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
-
-    /* DEDUPE: a walk-up resubmission (same borrower email + same street, or same email when
-       either side has no address yet) UPDATES the existing card instead of creating a twin. */
-    try {
-      var dEmail = String(data.email || '').trim().toLowerCase();
-      var dStreet = String(data.propertyAddress || '').split(',')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
-      if (dEmail) {
-        var allV = sh.getDataRange().getValues(), DH0 = allV[0];
-        var xId = DH0.indexOf('DealID'), xEm = DH0.indexOf('BorrowerEmail'),
-            xAd = DH0.indexOf('AssembledAddress'), xAr = DH0.indexOf('Archived');
-        for (var rr = 1; rr < allV.length; rr++) {
-          if (xAr >= 0 && String(allV[rr][xAr]).trim() !== '') continue;                       // archived: leave frozen
-          var em0 = xEm >= 0 ? String(allV[rr][xEm] || '').trim().toLowerCase() : '';
-          if (!em0 || em0 !== dEmail) continue;
-          var ad0 = xAd >= 0 ? String(allV[rr][xAd] || '').split(',')[0].replace(/[^a-z0-9]/gi, '').toLowerCase() : '';
-          if (dStreet && ad0 && ad0 !== dStreet) continue;                                     // same person, DIFFERENT property = new deal
-          var exId = String(allV[rr][xId] || '').trim();
-          if (!exId) continue;
-          try { Pipeline_writeBackFromApp(exId, data, snap); } catch (eD1) {}
-          try { pipeline_linkDriveFolderIfEmpty(exId, folderUrl); } catch (eD2) {}
-          try { PL_cacheBust_(); } catch (eD3) {}
-          return exId;                                                                          // merged into the existing card
-        }
-      }
-    } catch (eDD) {}   // dedupe scan failure: fall through and create the card as before
-
     var row = []; for (var i = 0; i < H.length; i++) row.push('');
     function set(n, v) { var ci = H.indexOf(n); if (ci >= 0) row[ci] = v; }
     var id = 'app_' + String(appDealId || Utilities.getUuid().slice(0, 8));

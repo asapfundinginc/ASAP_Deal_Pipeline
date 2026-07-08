@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Options — ASAP Funding</title>
+<style>
+  :root{--bg:#f6f8fb;--card:#fff;--ink:#1e293b;--mut:#64748b;--blue:#2563eb;--blue-lt:#eff6ff;--blue-bd:#bfdbfe;
+  --green:#16a34a;--green-bg:#f0fdf4;--amber:#b45309;--amber-bg:#fffbeb;--amber-bd:#fde68a;--red:#dc2626;--red-bg:#fef2f2;
+  --line:#e2e8f0;--mono:"SF Mono",Consolas,Menlo,monospace}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:13.5px/1.45 -apple-system,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);padding-bottom:60px}
+  .topbar{background:#0f2b52;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .topbar b{font-size:15px}
+  .topbar select{font:inherit;border-radius:6px;border:0;padding:6px 9px;font-weight:700;color:#0f2b52}
+  .wrap{max-width:1240px;margin:14px auto;padding:0 16px}
+  .sponsor{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .sponsor .t{font-size:11px;font-weight:800;color:#0f2b52}
+  .sponsor label{font-size:11.5px;color:var(--mut)}
+  .sponsor input,.sponsor select{font-family:var(--mono);font-size:12.5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;width:96px}
+  .sponsor select{font-family:inherit;width:auto}
+  .statbar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+  @media(max-width:900px){.statbar{grid-template-columns:1fr 1fr}}
+  .stat{border-radius:10px;padding:10px 12px;text-align:center;border:1px solid var(--line);background:var(--card)}
+  .stat .lbl{font-size:9.5px;font-weight:800;letter-spacing:.5px;color:var(--mut)}
+  .stat .val{font-family:var(--mono);font-size:18px;font-weight:800;margin-top:2px}
+  .stat.ok{background:var(--green-bg);border-color:#bbf7d0}.stat.ok .val{color:var(--green)}
+  .stat.warn{background:var(--amber-bg);border-color:var(--amber-bd)}.stat.warn .val{color:var(--amber)}
+  .legs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:1020px){.legs{grid-template-columns:1fr}}
+  .leg{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .leg.off{opacity:.42}
+  .lhead{padding:9px 13px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+  .lhead .t{font-size:11px;font-weight:800;color:#0f2b52}
+  .onoff{font-size:10px;font-weight:800;cursor:pointer;background:var(--blue);border:0;color:#fff;border-radius:5px;padding:3px 9px}
+  .leg.off .onoff{background:#94a3b8}
+  .addr{width:100%;margin-top:6px;font-size:11.5px;font-weight:700;padding:4px 8px;border:1px solid var(--line);border-radius:14px;background:#0f2b52;color:#fff}
+  .selgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:9px 13px;background:var(--blue-lt);border-bottom:1px solid var(--line)}
+  .selgrid label{display:block;font-size:9.5px;font-weight:800;color:var(--mut)}
+  .selgrid select{width:100%;font-size:12px;font-weight:700;color:#0f2b52;padding:4px 6px;border:1px solid var(--blue-bd);border-radius:6px;background:#fff}
+  .body{padding:9px 13px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0}
+  .row label{font-size:12px;color:var(--mut);flex:1}
+  .row input,.row select{width:104px;text-align:right;font-family:var(--mono);font-size:12.5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:#fbfdff}
+  .row select{font-family:inherit;text-align:left}
+  .row input:focus{outline:2px solid var(--blue)}
+  .out{display:flex;justify-content:space-between;padding:4px 0;font-size:12.5px;border-top:1px dashed var(--line)}
+  .out b{font-family:var(--mono)}
+  .out.key{background:var(--blue-lt);margin:8px -13px 0;padding:8px 13px;border-top:1px solid var(--blue-bd)}
+  .out.key b{color:var(--blue);font-size:13.5px}
+  .btnrow{display:flex;gap:6px;margin:8px 0 2px}
+  .mini{flex:1;background:#fff;border:1.5px solid var(--blue);color:var(--blue);border-radius:8px;padding:6px 3px;font-size:11px;font-weight:800;cursor:pointer}
+  .mini.on{background:var(--blue);color:#fff}
+  .mini.solver{border-color:var(--green);color:var(--green)}
+  .panel{display:none;background:#fafcff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin-top:7px}
+  .panel.open{display:block}
+  .panel .ph{font-size:9.5px;font-weight:800;color:var(--mut);margin-bottom:4px}
+  .chip{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:8px;padding:5px 8px;margin-bottom:4px;font-size:11.5px;background:#fff;cursor:pointer}
+  .chip.sel{border-color:var(--blue);background:var(--blue-lt)}
+  .chip .nm{font-weight:700}.chip .why{font-size:10px;color:var(--mut)}
+  .fit{font-size:9px;font-weight:800;padding:2px 6px;border-radius:8px;background:var(--green-bg);color:var(--green)}
+  .outputs{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:14px;overflow:hidden}
+  .tabs{display:flex;border-bottom:1px solid var(--line);background:#f1f5f9}
+  .tab{flex:1;padding:10px;font-size:12px;font-weight:800;color:var(--mut);text-align:center;cursor:pointer;border:0;background:none}
+  .tab.on{background:#fff;color:var(--blue);border-bottom:2.5px solid var(--blue)}
+  .tabbody{display:none;padding:14px 16px}
+  .tabbody.on{display:block}
+  .copybar{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+  .cta{background:var(--blue);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .seg{display:flex;border:1.5px solid var(--blue);border-radius:8px;overflow:hidden}
+  .seg button{padding:8px 14px;font-size:11px;font-weight:800;border:0;background:#fff;color:var(--blue);cursor:pointer}
+  .seg button.on{background:var(--blue);color:#fff}
+  .copied2{color:var(--green);font-weight:700;display:none;font-size:12px}
+  #emailPrev{border:1px solid var(--line);border-radius:8px;overflow:auto;background:#fff}
+
+  .wfrow{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:13px;border-bottom:1px dashed var(--line)}
+  .wfrow b{font-family:var(--mono);white-space:nowrap}
+  .wfrow.head{border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:2px}
+  .wfrow.head>span:first-child{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
+  .wfrow.sub{font-size:12.5px;color:#475569}
+  .wfrow.gap{border-bottom:0;border-top:2px solid var(--ink);margin-top:4px;padding-top:8px}
+  .wfrow.gap>span:first-child{font-size:15px;font-weight:800;color:var(--ink)}
+  .wfrow.gap>b{font-size:17px}
+  /* v19: dot leaders — connect label to number across the white space */
+  .wfrow>span:first-child{flex:1;display:flex;align-items:baseline;min-width:0}
+  .wfrow>span:first-child::after{content:"";flex:1;margin:0 8px;border-bottom:1.5px dotted #b6c2d1;transform:translateY(-3px)}
+  .wfrow.head>span:first-child::after{border-bottom:0}
+  .wfrow.head{font-size:11px;font-weight:800;letter-spacing:.5px;color:#0f2b52;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .wfrow.sub{padding-left:16px;color:var(--mut);font-size:12.5px}
+  .wfrow.total{border-bottom:0;padding-top:7px}
+  .wfok{background:var(--green-bg);border:1px solid #bbf7d0;color:var(--green);border-radius:8px;padding:7px 12px;margin-top:8px;font-weight:800;font-size:12.5px}
+  .wfshort{background:var(--red-bg);border:1px solid #fecaca;color:var(--red);border-radius:8px;padding:7px 12px;margin-top:8px;font-weight:800;font-size:12.5px}
+  .wfexit{background:var(--blue-lt);border:1px solid var(--blue-bd);color:#0f2b52;border-radius:8px;padding:7px 12px;margin-top:8px;font-size:12.5px}
+  /* v19: inline solver icon next to the Loan Amount input */
+  .icoSolve{background:#fff;border:1.5px solid var(--green);color:var(--green);border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;padding:3px 7px;line-height:1}
+  .icoSolve:hover{background:var(--green);color:#fff}
+  /* v19: split view — inputs left, sticky live email right */
+  .wrap.split{max-width:1720px;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(400px,.88fr);gap:0 14px;align-items:start}
+  .wrap.split>*{grid-column:1}
+  .wrap.split>.outputs{grid-column:2;grid-row:1/span 20;position:sticky;top:12px;margin-top:0;max-height:calc(100vh - 24px);overflow:auto}
+  .wrap.split .legs{grid-template-columns:1fr 1fr}
+  @media(max-width:1450px){.wrap.split .legs{grid-template-columns:1fr}}
+  @media(max-width:1020px){.wrap.split{display:block}.wrap.split>.outputs{position:static;max-height:none}}
+  /* v19: paste-to-parse box */
+  #dealPaste{width:100%;height:64px;font:12.5px/1.4 inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;resize:vertical;margin-top:6px}
+  #parseMsg{font-size:11px;color:var(--mut);margin-top:4px}
+  .parseBtn{background:var(--green);color:#fff;border:0;border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><b>⚡ Creative Options</b> · multi-leg deal structuring · ES pricing · borrower email</div>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+  <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:8px">
+    <input type="checkbox" id="prefLayout" onchange="togglePref()" style="width:15px;height:15px;accent-color:#7fb3d3"> ★ Preferred layout
+  </label>
+  <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:8px">
+    <input type="checkbox" id="splitView" onchange="toggleSplit()" style="width:15px;height:15px;accent-color:#7fb3d3"> ⬒ Live email preview
+  </label>
+  <span><label style="font-size:11px;margin-right:6px">SCENARIO PRESET</label>
+  <select id="preset" onchange="applyPreset()">
+    <option value="brrrr" selected>Cash-out source → Purchase+Rehab → DSCR exit (BRRRR)</option>
+    <option value="simple">Purchase + takeout (borrower has down) — Leg A OFF</option>
+    <option value="guc">Ground-up → DSCR perm</option>
+    <option value="comm">Commercial bridge → NOI perm take-out</option>
+    <option value="cashperm">Cash-out bridge → DSCR perm (no purchase)</option>
+  </select></span>
+</div>
+</div>
+
+<div class="wrap" id="mainWrap">
+<div class="sponsor" style="display:block">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <span class="t">⚡ PASTE DEAL SCENARIO — auto-fills the legs</span>
+    <button class="parseBtn" onclick="parseScenario()">Parse &amp; fill</button>
+  </div>
+  <textarea id="dealPaste" placeholder="Paste the investor's email or deal notes. Pulls: borrower name, FICO, purchase price, rehab budget, ARV, rent, as-is value, payoff balance, borrower cash, address."></textarea>
+  <div id="parseMsg"></div>
+</div>
+<div class="sponsor">
+  <span class="t">SPONSOR</span>
+  <span><label>Borrower </label><input type="text" id="spName" value="" placeholder="auto-fills from deal" style="width:170px;font-family:inherit;text-align:left"></span>
+  <span><label>FICO </label><input type="number" id="spFico" value="665" step="1"></span>
+  <span><label>Experience </label><select id="spExp"><option value="0">Tier 0 — 0 deals completed</option><option value="1">Tier 1 — 1 deal completed</option><option value="2-4" selected>Tier 2-4 — 2-4 deals completed</option><option value="5+">Tier 5+ — 5+ deals completed</option></select></span>
+  <span><label>Entity </label><select><option selected>LLC</option><option>Individual</option><option>LP</option><option>Trust</option></select></span>
+  <span><label>Borrower cash </label><span style="display:inline-flex;align-items:center;gap:3px"><span style="color:#94a3b8">$</span><input type="text" inputmode="decimal" id="spCash" value="40,000" onblur="this.value=fmtIn(parseFloat(String(this.value).replace(/,/g,''))||0)"></span></span>
+</div>
+
+<div id="waterfall" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:12px"></div>
+
+<div class="legs" id="legs"></div>
+
+<div class="outputs">
+  <button id="emailToggle" onclick="toggleEmail()" style="width:100%;text-align:left;padding:12px 16px;font-size:12.5px;font-weight:800;color:#2563eb;background:#f1f5f9;border:0;cursor:pointer;letter-spacing:.3px">▸ BORROWER EMAIL (SHORT / DETAILED) — CLICK TO EXPAND</button>
+  <div class="tabbody" id="tab0" style="display:none">
+    <div class="copybar">
+      <span class="seg">
+        <button id="mShort" class="on" onclick="setMode('short')">SHORT SUMMARY</button>
+        <button id="mDet" onclick="setMode('detailed')">DETAILED BREAKDOWN</button>
+      </span>
+      <button class="cta" onclick="copyEmail()">Copy email to clipboard (keeps formatting)</button>
+      <span class="copied2" id="cp2">✓ Copied — paste into Gmail</span>
+    </div>
+    <div id="emailPrev"></div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ---------- CONFIG ---------- */
+const PURPOSES={purchase:"Purchase",rt:"Rate & Term Refi",co:"Cash-Out Refi",dp:"Delayed Purchase Refi"};
+const SOURCE_PURPOSES={co:"Cash-Out Refi",dp:"Delayed Purchase Refi"}; /* a Source-of-Funds leg only provides cash */
+const EXIT_PURPOSES={rt:"Rate & Term Refi",co:"Cash-Out Refi",dp:"Delayed Purchase Refi"}; /* a take-out is always a refinance, never a purchase */
+const PROGRAMS={bridge:"Bridge (IO)",ff:"Fix & flip / rehab loan",guc:"Ground-up construction loan",dscr:"30-yr DSCR loan",cperm:"Commercial perm (NOI DSCR)",land:"Land loan",gap:"2nd-position gap",heloc:"HELOC / SBLOC",sale:"Sale / Disposition (exit)"};
+/* Programs valid per leg role: subject = property loans; source = cash generators; exit = take-outs/disposition */
+const PROG_BY_ROLE={subject:['bridge','ff','guc','dscr','cperm','land'],source:['dscr','cperm','heloc','gap'],exit:['dscr','cperm','sale']};
+function roleOf_(L){return L.role.includes("SOURCE")?'source':((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))?'exit':'subject');}
+function progOpts_(L){var sub={};PROG_BY_ROLE[roleOf_(L)].forEach(function(k){sub[k]=PROGRAMS[k];});return opts(sub,L.program);}
+const PROPS={sfr:"SFR",u24:"2-4 Unit",condo:"Condo/TH",mf5:"MF 5+",mixed:"Mixed-Use",com:"Commercial",land:"Land"};
+const OCC={inv:"Investment (NOO)",vac:"Vacant",oo:"Owner-occ (business purpose)"};
+/* v20: US effective property-tax rates (annual % of value, published state medians) + insurance estimate */
+const STATE_TAX={AL:0.41,AK:1.19,AZ:0.62,AR:0.62,CA:0.75,CO:0.51,CT:2.15,DC:0.57,DE:0.58,FL:0.91,GA:0.92,HI:0.28,ID:0.69,IL:2.23,IN:0.85,IA:1.57,KS:1.41,KY:0.85,LA:0.55,ME:1.28,MD:1.07,MA:1.23,MI:1.48,MN:1.11,MS:0.81,MO:0.98,MT:0.83,NE:1.67,NV:0.59,NH:2.09,NJ:2.23,NM:0.80,NY:1.72,NC:0.82,ND:0.99,OH:1.56,OK:0.90,OR:0.93,PA:1.53,RI:1.63,SC:0.57,SD:1.24,TN:0.67,TX:1.68,UT:0.63,VT:1.90,VA:0.87,WA:0.94,WV:0.59,WI:1.73,WY:0.61};
+const STATES={"":"— select —",AL:"AL",AK:"AK",AZ:"AZ",AR:"AR",CA:"CA",CO:"CO",CT:"CT",DC:"DC",DE:"DE",FL:"FL",GA:"GA",HI:"HI",ID:"ID",IL:"IL",IN:"IN",IA:"IA",KS:"KS",KY:"KY",LA:"LA",ME:"ME",MD:"MD",MA:"MA",MI:"MI",MN:"MN",MS:"MS",MO:"MO",MT:"MT",NE:"NE",NV:"NV",NH:"NH",NJ:"NJ",NM:"NM",NY:"NY",NC:"NC",ND:"ND",OH:"OH",OK:"OK",OR:"OR",PA:"PA",RI:"RI",SC:"SC",SD:"SD",TN:"TN",TX:"TX",UT:"UT",VT:"VT",VA:"VA",WA:"WA",WV:"WV",WI:"WI",WY:"WY"};
+const INS_ANNUAL_PCT=0.35; /* investor DP hazard policy estimate, % of value/yr */
+/* auto monthly T&I from state + value; HOA left to manual add via override */
+function autoTI(state,value){if(!state||!STATE_TAX[state]||!(value>0))return null;
+  const taxMo=value*(STATE_TAX[state]/100)/12, insMo=value*(INS_ANNUAL_PCT/100)/12;
+  return Math.round(taxMo+insMo);}
+/* internal ES cap defaults — engine sizes against these; no visible field needed */
+function esLtvCap(prop,pur){const co=(pur==='co'||pur==='dp');
+  if(prop==='com'||prop==='mixed'||prop==='mf5')return 70; /* commercial/mixed/MF5+ */
+  if(prop==='u24')return 70; if(prop==='condo')return co?70:75; return co?75:75;}
+function esDscrMin(){return 1.0;} /* ES standard floor; pricing LLPA already handles sub-1.0 bands */
+/* fee fields itemized to match reference flyer */
+const FEE=[["pts","Lender points %",1.5],["apts","ASAP funding points %",1.0],["proc","ASAP processing fee $",795],["uw","Underwriting / processing $",1500],["doc","Loan doc / processing $",2790],["esc","Escrow & title %",1.5],["appr","Appraisal & third-party $",650]];
+/* v19: prepaids required at close on bridge-type legs (hazard paid upfront; tax proration/escrow) */
+const PREPAID=[["haz","Prepaid hazard insurance $ (at close)",1500],["taxpro","Tax proration / escrow $ (at close)",0]];
+const BRIDGE_TYPE=["ff","guc","bridge","hm","land"];
+const PROGRAM_FIELDS={
+  bridge:[["want","Loan amount",0],["rate","Rate % (IO)",0],["val","As-is value",800000],["term","Term (mo)",12]],
+  ff:[["want","Loan amount",0],["rate","Rate % (IO)",0],["pp","Purchase price",525000],["rehab","Rehab budget (lender-held)",200000],["arv","ARV",1400000],["term","Term (mo)",12]],
+  guc:[["want","Loan amount",0],["rate","Rate % (IO)",0],["pp","Land cost / basis",300000],["rehab","Construction budget",700000],["arv","Completed value",1500000],["term","Term (mo)",18]],
+  dscr:[["want","Loan amount",0],["rate","Rate %",0],["val","As-is value",800000],["rent","Rent /mo (LT market)",7400],["ti","Taxes+ins+HOA /mo",900]],
+  cperm:[["want","Loan amount",0],["rate","Rate %",0],["val","Value (stabilized)",2000000],["noi","NOI (annual, after expenses)",160000],["dyMin","Min debt yield %",0],["amYrs","Amortization (yrs)",25]],
+  land:[["want","Loan amount",0],["rate","Rate % (IO)",13],["val","As-is land value",600000]],
+  gap:[["want","2nd position loan amount",0],["rate","Rate % (IO)",13],["val","As-is value",800000],["bal1","Existing 1st balance",545000]],
+  heloc:[["limit","Line limit",150000],["amt","Amount drawn",100000],["rate","Rate %",9.5]],
+  sale:[["price","Sale price",1400000],["sellpct","Selling costs % (commissions + closing)",7]]};
+const PURPOSE_FIELDS={rt:[["bal","Payoff (current debt)",545000]],co:[["bal","Payoff (current debt)",545000]],dp:[["bal","Cash basis to recoup",0]],purchase:[]};
+const LENDERS=[
+ {n:"Rodeo Lending",progs:["bridge","ff","guc","dscr"],fico:660,min:200000,max:10000000,why:"80% DSCR / F&F; existing relationship"},
+ {n:"Kiavi",progs:["bridge","ff","dscr"],fico:680,min:50000,max:3000000,why:"F&F to 90% LTC; DSCR 75-80%"},
+ {n:"Easy Street",progs:["bridge","ff","guc","dscr"],fico:620,min:75000,max:5000000,why:"EasyFix / EasyRent / EasyBuild"},
+ {n:"Civic Financial",progs:["bridge","dscr","ff"],fico:660,min:75000,max:3500000,why:"660 FICO confirmed"},
+ {n:"F2 Finance",progs:["bridge","ff"],fico:550,min:300000,max:3000000,why:"DC confirmed; low-FICO fallback"},
+ {n:"Anchor Loans",progs:["ff","guc","bridge"],fico:0,min:100000,max:15000000,why:"75% ARV; experience-driven"}];
+
+/* ============ v19 ES STANDARD-SERIES DSCR PRICING ENGINE ============
+   Extracted verbatim from Easy Street's DSCR workbook (6-15-2026 matrix).
+   Price LLPAs by CLTV bucket; auto-rate solves the 30-yr-fixed stack to par (100),
+   honoring PPP-specific price ceilings. 5 pts = 1.00% rate in the quoting range. */
+const ES_STACK=[[5.875,95.045],[6,95.92],[6.125,96.638],[6.25,97.325],[6.375,98.013],[6.5,98.7],[6.625,99.325],[6.75,99.95],[6.875,100.575],[7,101.2],[7.125,101.825],[7.25,102.45],[7.375,102.982],[7.5,103.419],[7.625,103.857],[7.75,104.294],[7.875,104.669],[8,105.044],[8.125,105.419],[8.25,105.794],[8.375,106.169],[8.5,106.482],[8.625,106.794],[8.75,107.107],[8.875,107.357],[9,107.607],[9.125,107.857],[9.25,108.107]];
+const ES_FICO=[[1.5,1.375,1.25,0.875,0.25,-0.25,-1.375],[1.5,1.375,1.125,0.75,0,-0.5,-1.75],[1.25,1.125,0.875,0.5,-0.25,-0.75,-2.5],[0.875,0.75,0.375,-0.125,-1,-1.75,-4.125],[0.5,0.125,-0.125,-1,-2.5,-3.75,null],[0,-0.375,-0.875,-1.625,-3,-5.5,null],[-3,-3.5,-4,-4.5,-5,-6,null]];
+const ES_DSCRADJ=[[0.5,0.5,0.5,0.625,0.625,0.625,0.625],[0,0,0,0,0,0,0],[-0.5,-0.625,-0.75,-1,-1.5,-2.375,null],[-1.75,-2,-2,-2.75,-3,-4.375,null]];
+const ES_SIZE=[[-0.75,-0.75,-0.875,-0.875,-0.875,-1.75,-2],[-0.25,-0.25,-0.25,-0.25,-0.25,-0.375,-0.5],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,-0.5],[0,0,-0.125,-0.125,-0.25,-0.5,null],[-0.375,-0.375,-0.5,-0.75,-1,null,null],[-0.75,-0.75,-0.75,-1.125,-1.25,null,null],[-1.5,-1.5,-1.5,-1.5,-2,null,null]];
+const ES_PUR={purchase:[0.25,0.25,0.25,0.25,0.25,0.25,0.25],rt:[-0.125,-0.125,-0.125,-0.125,-0.125,-0.25,null],dp:[-0.125,-0.125,-0.125,-0.125,-0.125,-0.25,null],co720:[-0.5,-0.5,-0.5,-0.625,-0.875,-1.375,null],coLT:[-0.875,-0.875,-0.875,-1,-1.375,-1.625,null]};
+const ES_PROP={sfr:[0,0,0,0,0,0,0],condo:[-0.125,-0.125,-0.125,-0.25,-0.5,-0.75,null],u24:[-0.5,-0.5,-0.5,-0.5,-0.75,-1,null]};
+const ES_IOADJ=[-0.5,-0.5,-0.5,-0.5,-0.625,-0.75,null];
+const ES_PPP={'5yr':[0.75,0.75,0.75,0.75,0.875,0.875,0.875],'3yr':[-0.5,-0.5,-0.5,-0.5,-0.625,-0.625,-0.625],'fix5_60':[0.875,0.875,0.875,0.875,1,1,1],'fix5_36':[0.25,0.25,0.25,0.25,0.25,0.25,0.25],'none':[-1.25,-1.25,-1.5,-1.5,-1.5,-1.5,-1.5]};
+const ES_CEIL={'5yr':102,'3yr':102,'fix5_60':102,'fix5_36':102,'none':98.375};
+/* v19: CT/IL/NJ/NY state price hit (ES Standard row) */
+const ES_ST4=[0,0,0,0,0,-0.25,-0.5];
+function esBucket(l){return l<=50?0:l<=55?1:l<=60?2:l<=65?3:l<=70?4:l<=75?5:l<=80?6:null;}
+function esFicoRow(f){return f>=760?0:f>=740?1:f>=720?2:f>=700?3:f>=680?4:f>=660?5:f>=640?6:null;}
+function esDscrRow(d){return d>=1.25?0:d>=1.00?1:d>=0.75?2:3;}
+function esSizeRow(L){return L<=150000?0:L<=250000?1:L<=500000?2:L<=1000000?3:L<=1500000?4:L<=2000000?5:L<=2500000?6:L<=3000000?7:L<=3500000?8:null;}
+function esPriceAt(r){const S=ES_STACK;if(r<=S[0][0])return S[0][1];if(r>=S[S.length-1][0])return S[S.length-1][1];
+  for(let i=1;i<S.length;i++){if(r<=S[i][0]){const [r0,p0]=S[i-1],[r1,p1]=S[i];return p0+(p1-p0)*(r-r0)/(r1-r0);}}return S[S.length-1][1];}
+function esRateAt(p){const S=ES_STACK;if(p<=S[0][1])return S[0][0];if(p>=S[S.length-1][1])return S[S.length-1][0];
+  for(let i=1;i<S.length;i++){if(p<=S[i][1]){const [r0,p0]=S[i-1],[r1,p1]=S[i];return r0+(r1-r0)*(p-p0)/(p1-p0);}}return S[S.length-1][0];}
+function esQuote(c){
+  const b=esBucket(c.ltvPct); if(b===null)return{na:'CLTV above 80% \u2014 outside ES box'};
+  const fr=esFicoRow(c.fico); if(fr===null)return{na:'FICO below 640 \u2014 outside ES box'};
+  const sr=esSizeRow(c.loan); if(sr===null)return{na:'Loan above $3.5M \u2014 outside ES box'};
+  const pm=(c.prop==='sfr')?ES_PROP.sfr:(c.prop==='condo')?ES_PROP.condo:(c.prop==='u24')?ES_PROP.u24:null;
+  if(!pm)return{na:'Property type outside ES 1-4 resi DSCR box'};
+  const purKey=(c.pur==='purchase')?'purchase':(c.pur==='co'||c.pur==='dp')?(c.fico>=720?'co720':'coLT'):'rt'; /* ES note [3]: cash back at close = cash-out pricing, incl. delayed purchase */
+  const cells=[ES_FICO[fr][b],ES_DSCRADJ[esDscrRow(c.dscr)][b],ES_SIZE[sr][b],ES_PUR[purKey][b],pm[b],ES_PPP[c.ppp][b],c.io?ES_IOADJ[b]:0,c.st4?ES_ST4[b]:0];
+  if(cells.some(x=>x===null))return{na:'Combination not priced by ES at this CLTV \u2014 outside ES box'};
+  const llpa=cells.reduce((a,x)=>a+x,0);
+  const ceil=ES_CEIL[c.ppp]!==undefined?ES_CEIL[c.ppp]:102;
+  if(c.overrideRate>0){
+    const pts=Math.round((100-Math.min(esPriceAt(c.overrideRate)+llpa,ceil))*1000)/1000;
+    return{rate:c.overrideRate,pts:pts,llpa:llpa,bucket:b,override:true};
+  }
+  let target=Math.min(100,ceil);
+  if(c.buyd==='buy1')target=Math.min(99,ceil);
+  if(c.buyd==='credit1')target=Math.min(101,ceil);
+  target=Math.max(96,target);
+  const rate=Math.round(esRateAt(target-llpa)*1000)/1000;
+  const pts=Math.round((100-target)*1000)/1000;
+  return{rate:rate,pts:pts,llpa:llpa,bucket:b};
+}
+
+const pmt30=(p,r)=>{const m=r/100/12;return p*m/(1-Math.pow(1+m,-360));};
+const loanFromPmt=(pay,r)=>{const m=r/100/12;return pay*(1-Math.pow(1+m,-360))/m;};
+const fmt=n=>(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString();
+const money=n=>'$'+Math.round(n).toLocaleString();
+
+/* ---------- STATE ---------- */
+let legs=[], emailMode='short';
+function makeLeg(role,addr,purpose,program,prop,occ,on,overrides={}){
+  const vals={};
+  (PROGRAM_FIELDS[program]||[]).forEach(f=>vals[f[0]]=f[2]);
+  FEE.forEach(f=>vals[f[0]]=f[2]);
+  PREPAID.forEach(f=>vals[f[0]]=f[2]);
+  (PURPOSE_FIELDS[purpose]||[]).forEach(f=>vals[f[0]]=f[2]);
+  if(purpose==='purchase'){vals.sellerCr=vals.sellerCr??0;vals.sellerCrMode=vals.sellerCrMode||'usd';vals.emd=vals.emd??0;}
+  if(program==='dscr'&&overrides.pts===undefined)vals.pts=0; /* DSCR lender points default 0 */
+  Object.assign(vals,overrides);
+  return {role,addr,purpose,program,prop,occ,on,state:overrides.state||"",vals};
+}
+function applyPreset(){
+  const p=document.getElementById('preset').value;
+  const NAMES={brrrr:'',simple:'',guc:'',comm:''};
+  const nm=document.getElementById('spName'); if(nm) nm.value=NAMES[p]||'';
+  if(p==='brrrr') legs=[
+    makeLeg("LEG A · SOURCE OF FUNDS","Source property address (cash-out)","co","dscr","u24","inv",true,{uw:1995,doc:795}),
+    makeLeg("LEG B · SUBJECT DEAL","Subject property address","purchase","ff","u24","vac",true),
+    makeLeg("LEG C · EXIT / TAKE-OUT","Subject property address","rt","dscr","u24","inv",true,{val:1400000,rent:9200,ti:1340,uw:1995,doc:795,appr:650})];
+  if(p==='simple') legs=[
+    makeLeg("LEG A · SOURCE OF FUNDS","Source property address","co","dscr","u24","inv",false),
+    makeLeg("LEG B · SUBJECT DEAL","Subject property","purchase","ff","u24","vac",true),
+    makeLeg("LEG C · EXIT / TAKE-OUT","Subject property","rt","dscr","u24","inv",true,{val:1400000,rent:9200,ti:1340,uw:1995,doc:795})];
+  if(p==='guc') legs=[
+    makeLeg("LEG A · SOURCE","Source property address","co","dscr","u24","inv",false),
+    makeLeg("LEG B · GROUND-UP","Subject land","purchase","guc","land","vac",true),
+    makeLeg("LEG C · PERM TAKE-OUT","Completed property","rt","dscr","mf5","inv",true,{val:1500000,rent:11000,ti:1600,uw:1995,doc:795})];
+  if(p==='comm') legs=[
+    makeLeg("LEG A · SOURCE","Source property address","co","dscr","u24","inv",false),
+    makeLeg("LEG B · COMMERCIAL BRIDGE","Subject commercial property","purchase","bridge","com","vac",true,{val:2000000,ltv:65,rate:10.5}),
+    makeLeg("LEG C · PERM TAKE-OUT","Subject commercial property","rt","cperm","com","inv",true,{pts:1,uw:1995,doc:795})];
+  if(p==='cashperm') legs=[
+    makeLeg("LEG A · SOURCE OF FUNDS","Source property address (cash-out)","co","dscr","u24","inv",false),
+    makeLeg("LEG B · SUBJECT DEAL","Subject property address","co","bridge","sfr","inv",true,{val:400000,bal:150000}),
+    makeLeg("LEG C · EXIT / TAKE-OUT","Subject property address","rt","dscr","sfr","inv",true,{val:400000,rent:3200,ti:400,uw:1995,doc:795,appr:650})];
+  render();
+}
+
+
+/* ---------- WIRED LEVERS (program-aware) ---------- */
+function selRow(i,key,label,options,cur){
+  const o=options.map(x=>`<option value="${x[0]}" ${x[0]===cur?'selected':''}>${x[1]}</option>`).join('');
+  return `<div class="row"><label>${label}</label><select onchange="setLev(${i},'${key}',this.value)">${o}</select></div>`;
+}
+function leverRows(i){
+  const L=legs[i], v=L.vals, P=L.program;
+  let h='';
+  if(L.purpose==='purchase'){
+    /* v20: seller credit as $ or % of purchase price */
+    h+=selRow(i,'sellerCrMode','Seller credit basis',[['usd','Dollar amount'],['pct','% of purchase price']],v.sellerCrMode||'usd');
+    const scLbl=(v.sellerCrMode==='pct')?'Seller credit %':'Seller credit $';
+    h+=`<div class="row"><label>${scLbl}</label><span style="display:flex;align-items:center;gap:3px">${(v.sellerCrMode==='pct')?'':'<span style=\"color:#94a3b8;font-size:12px\">$</span>'}<input type="text" inputmode="decimal" value="${(v.sellerCrMode==='pct')?(v.sellerCr||0):fmtIn(v.sellerCr||0)}" style="width:${(v.sellerCrMode==='pct')?'60px':'104px'}" oninput="setVal(${i},'sellerCr',this.value)">${(v.sellerCrMode==='pct')?'<span style=\"color:#94a3b8;font-size:12px\">%</span>':''}</span></div>`;
+    h+=`<div class="row"><label>EMD already paid</label><span style="display:flex;align-items:center;gap:3px"><span style="color:#94a3b8;font-size:12px">$</span><input type="text" inputmode="decimal" value="${fmtIn(v.emd||0)}" style="width:104px" oninput="setVal(${i},'emd',this.value)"></span></div>`;
+  }
+  if(P==='guc'){
+    h+=selRow(i,'landOwned','Land already owned free & clear',[['no','No — buying the land'],['yes','Yes — credit land as equity']],v.landOwned||'no');
+  }
+  if(P==='ff'||P==='guc'||P==='bridge'||P==='hm'){
+    h+=selRow(i,'irMode','Interest reserve',[['pof','Proof of funds — not collected'],['close','Collected at close']],v.irMode||'pof');
+    if((v.irMode||'pof')==='close') h+=`<div class="row"><label>IR months collected</label><input type="text" inputmode="numeric" value="${v.irMo??(v.term||12)}" style="width:60px" oninput="setVal(${i},'irMo',this.value)"></div>`;
+    h+=selRow(i,'buyd','Rate / fee option',[['std','Standard pricing'],['lowfee','+2.00% rate → 0.50% total pts'],['lowrate','−0.50% rate → +1.00 pt']],v.buyd||'std');
+    /* v19: minimum-interest clause + planned payoff month — drives the true payoff at exit */
+    h+=selRow(i,'minIntMo','Minimum interest clause',[['0','None'],['3','3 months'],['6','6 months'],['9','9 months'],['12','12 months']],String(v.minIntMo??'0'));
+    h+=`<div class="row"><label>Planned payoff month (exit timing)</label><input type="text" inputmode="numeric" value="${v.payoffMo??(v.term||12)}" style="width:60px" oninput="setVal(${i},'payoffMo',this.value)"></div>`;
+  }
+  if(P==='dscr'){
+    h+=selRow(i,'rentBasis','Rental strategy',[['lt','Long-term rental (market rent)'],['str','Short-term rental (Airbnb income)']],v.rentBasis||'lt');
+    h+=selRow(i,'payType','Payment type',[['amort30','30-yr amortizing'],['io10','10-yr IO (then amortizing)'],['io5','5-yr IO (then amortizing)']],v.payType||'amort30');
+    h+=selRow(i,'ppp','Prepayment penalty (ES-priced)',[['5yr','5-yr step-down (5-4-3-2-1)'],['3yr','3-yr step-down'],['fix5_60','5% fixed \u2014 60 mo'],['fix5_36','5% fixed \u2014 36 mo'],['none','No PPP (min 1.625 ES pts \u2014 price ceiling)']],v.ppp||'5yr');
+    h+=selRow(i,'impoundMo','Tax & insurance impound',[['0','None (PoF-verified)'],['3','3 months'],['6','6 months']],String(v.impoundMo??'0'));
+    h+=selRow(i,'st4','Property in CT / IL / NJ / NY',[['no','No'],['yes','Yes \u2014 ES state price hit']],v.st4||'no');
+    h+=selRow(i,'buyd','Rate / fee option (ES stack-exact)',[['par','ES par pricing (0 ES pts)'],['buy1','Pay 1 pt to ES \u2192 lower rate'],['credit1','1 pt ES credit \u2192 higher rate']],(({std:'par',lowfee:'par',lowrate:'par'})[v.buyd])||v.buyd||'par');
+  }
+  if(P==='land'||P==='gap'||P==='heloc'||P==='cperm'){
+    h+='<div class="row"><label>No program levers for this loan type</label></div>';
+  }
+  return h;
+}
+function setLev(i,k,val){legs[i].vals[k]=val;render();}
+/* v19: solver metadata for the inline ⌖ icon next to the Loan Amount input */
+function solverMeta(L,i){
+  const isExit=L.role.includes("EXIT")||L.role.includes("TAKE-OUT");
+  const isSource=(L.purpose==='co')&&!isExit;
+  const isSubject=(L.program==='ff'||L.program==='guc'||(L.purpose==='purchase'))&&!isExit;
+  /* Solve → $0 only on rate&term / delayed-purchase exits — a cash-out exit wants max proceeds, nothing to solve */
+  if(isExit&&(L.program==='dscr'||L.program==='cperm')&&(L.purpose==='rt'||L.purpose==='dp'))
+    return {fn:'solveZero',short:'$0',tip:'SOLVE TO $0 — sizes this take-out loan just big enough to pay off the bridge (including any min-interest true-up) plus this leg\u2019s closing costs, so the borrower nets exactly $0 at the refi. Clamps to max qualifying if the target is too big.'};
+  /* cover-gap only when another ON leg actually needs cash */
+  if(isSource){
+    let anyNeed=false;
+    legs.forEach((X,j)=>{if(!X.on||j===i)return;const rr=compute(j,0);
+      if(rr.cashNeed>0&&!(X.role.includes("EXIT")||X.role.includes("TAKE-OUT")))anyNeed=true;});
+    if(anyNeed) return {fn:'solveGap',short:'gap',tip:'SOLVE TO COVER GAP — sizes this cash-out loan so its net proceeds (after payoff and this leg\u2019s fees) exactly cover what the other legs still need to close, after the borrower\u2019s own cash is applied first.'};
+    return null;
+  }
+  if(isSubject) return {fn:'solveMyCash',short:'my cash',tip:'SOLVE TO MY CASH — sizes this loan so total cash-to-close (down payment + fees + prepaids + any collected interest reserve) exactly equals the borrower\u2019s available cash from the Sponsor bar. Clamps to max qualifying if the cash is too little.'};
+  return null;
+}
+/* size THIS source leg so net cash out exactly covers what the subject legs still need after borrower cash */
+function clampToCap(i,L){var c=compute(i,0).cap;L=Math.max(0,Math.round(L));return (c>0&&isFinite(c))?Math.min(L,Math.floor(c)):L;}
+function solveGap(i){
+  let need=0;
+  legs.forEach((L,j)=>{if(!L.on||j===i)return;
+    const r=compute(j,0);
+    if(r.cashNeed>0&&!(L.role.includes("EXIT")||L.role.includes("TAKE-OUT")))need+=r.cashNeed;});
+  const cash=parseFloat(String(document.getElementById('spCash').value).replace(/,/g,''))||0;
+  const target=Math.max(0,need-cash);
+  const v=legs[i].vals, A=adjusters(legs[i]);
+  const pre=BRIDGE_TYPE.includes(legs[i].program)?((v.haz||0)+(v.taxpro||0)):0; /* v19 */
+  const pct=((v.pts||0)+(v.apts||0)+A.dp+(v.esc||0))/100, fix=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0)+pre;
+  const L=Math.round(((v.bal||0)+fix+target)/(1-pct));
+  legs[i].vals.want=clampToCap(i,L); render(); if(typeof saveState==="function") saveState();
+}
+/* size the subject leg so cash-to-close equals the borrower's available cash */
+function solveMyCash(i){
+  const cash=parseFloat(String(document.getElementById('spCash').value).replace(/,/g,''))||0;
+  const v=legs[i].vals, A=adjusters(legs[i]);
+  const pre=BRIDGE_TYPE.includes(legs[i].program)?((v.haz||0)+(v.taxpro||0)):0; /* v19 */
+  const rr0=compute(i,0); const irM=(rr0.ir>0&&rr0.loan>0)?(rr0.ir/rr0.loan):0; /* reserve as fraction of loan (effective rate, both collected & PoF modes) */
+  const pct=((v.pts||0)+(v.apts||0)+A.dp+(v.esc||0))/100, fix=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0)+pre;
+  const cost=(v.pp!==undefined)?((['co','rt','dp'].includes(legs[i].purpose)?(v.bal||0):v.pp)+(v.rehab||0)):(v.val||0);
+  const L=Math.round((cost+fix-cash)/(1-pct-irM));
+  legs[i].vals.want=clampToCap(i,L); render(); if(typeof saveState==="function") saveState();
+}
+function adjusters(L){
+  const v=L.vals, P=L.program;
+  let dr=0, dp=0, dltv=0, tag=[];
+  /* main calc: first-time investor = Tier 0 only (Tier 1 prices with Tier 2-4) */
+  const firstTimer=(document.getElementById('spExp')&&document.getElementById('spExp').value==='0');
+  if(firstTimer&&(P==='ff'||P==='guc'||P==='bridge')){dr+=0.75;tag.push('First-time investor +0.75% (approx of Tier-0 pricing rows)');}
+  if(P==='dscr'){
+    /* FICO / IO / PPP / rate-fee options now price through the ES engine tables \u2014 only the two main-calc overlays remain here */
+    if(firstTimer){dr+=0.25;dltv+=5;tag.push('First-time investor +0.25% / \u22125% LTV');}
+    if((v.rentBasis||'lt')==='str'){dltv+=5;tag.push('STR \u22125% LTV (ES Standard: no rate hit)');}
+  }
+  if(P==='ff'||P==='guc'||P==='bridge'||P==='hm'){
+    const b=v.buyd||'std';
+    if(b==='lowfee'){dr+=2.0;dp=0.5-(v.pts||0);tag.push('Buy-down +2.00% → 0.50 total pts');}
+    if(b==='lowrate'){dr-=0.5;dp+=1.0;tag.push('Buy-up −0.50% / +1 pt');}
+  }
+  return {dr,dp,dltv,tag};
+}
+/* ---------- CALC ---------- */
+function closing(loan,v,effPts){return loan*(effPts!==undefined?effPts:(v.pts||0))/100+loan*(v.apts||0)/100+(v.proc||0)+(v.uw||0)+(v.doc||0)+loan*(v.esc||0)/100+(v.appr||0);}
+/* ===== PORTED MAIN-CALC PRICING: Fix&Flip / Ground-up / Bridge + Commercial ===== */
+function spExpVal(){return (document.getElementById('spExp')||{}).value||'2-4';}
+function spFicoVal(){return parseFloat((document.getElementById('spFico')||{}).value)||0;}
+function bffTier(){var s=spExpVal();return s==='0'?0:(s==='5+'?2:1);}
+function bffPFico(){var n=spFicoVal();return n>=750?-0.25:(n>=700?0:0.5);}
+function bffEscTier(){var s=spExpVal();return s==='0'?0:(s==='1'?1:(s==='5+'?3:2));}
+function bffEscBand(){var n=spFicoVal();return n>=720?3:(n>=700?2:(n>=660?1:0));}
+var ESC_FIX_LTC=[[.85,.85,.85,.90],[.85,.85,.85,.90],[.90,.90,.90,.90],[.90,.90,.93,.93]];
+var BFF_BRIDGE_RATE=[10.5,9.75,8.9], BFF_GUC_RATE=[9.99,9.5,8.99];
+var BFF_GUC_LTC=[.85,.88,.90], BFF_GUC_LTARV=[.70,.72,.75];
+function rateFF(L){return (L.state==='CA')?8.9:9.9;}
+function rateGUC(L){return BFF_GUC_RATE[bffTier()]+bffPFico();}
+function rateBridge(L){return BFF_BRIDGE_RATE[bffTier()]+bffPFico();}
+function capFF(){return {ltc:ESC_FIX_LTC[bffEscTier()][bffEscBand()],ltarv:0.75};}
+function capGUC(){return {ltc:BFF_GUC_LTC[bffTier()],ltarv:BFF_GUC_LTARV[bffTier()]};}
+function buydAdj(P,v){var b=v.buyd||'std';var dr=0,pts=(v.pts||0);if(P==='ff'||P==='guc'||P==='bridge'||P==='hm'){if(b==='lowfee'){dr=2.0;pts=0.5;}else if(b==='lowrate'){dr=-0.5;pts=(v.pts||0)+1.0;}}return {dr:dr,pts:pts};}
+/* live leverage readout under the Loan amount input — shows only ratios relevant per program */
+function leverageLine(L,r){
+  if(!L.on) return '';
+  var v=L.vals, P=L.program, loan=(r&&r.loan)||0, pur=L.purpose;
+  if(!(loan>0)) return '';
+  function seg(label,val,cap){
+    if(!(val>0)) return '';
+    var over=cap&&val>cap*100+0.1, near=cap&&val>=cap*100-2;
+    var col=over?'#b91c1c':(near?'#b45309':'#475569');
+    var capTxt=cap?(' <span style="color:#cbd5e1;font-weight:600">/ '+(cap*100).toFixed(0)+'%</span>'):'';
+    return '<span style="color:'+col+'">'+label+' '+val.toFixed(1)+'%</span>'+capTxt;
+  }
+  var R=function(base){return base>0?loan/base*100:0;};
+  var parts=[];
+  if(P==='ff'||P==='guc'){
+    var isRefiF=(pur==='co'||pur==='rt'||pur==='dp');
+    var cost=isRefiF?((v.bal||0)+(v.rehab||0)):((v.pp||0)+(v.rehab||0));
+    var caps=(P==='ff')?capFF():capGUC();
+    parts.push(seg('LTC',R(cost),caps.ltc));
+    parts.push(seg('LTARV',R(v.arv||0),caps.ltarv));
+  } else if(P==='gap'){
+    parts.push(seg('CLTV',v.val>0?((loan+(v.bal1||0))/v.val*100):0,0.75));
+  } else if(P==='bridge'||P==='hm'){
+    parts.push(seg('LTV',R(v.val||0),0.65));
+  } else if(P==='land'){
+    parts.push(seg('LTV',R(v.val||0),0.50));
+  } else if(P==='cperm'){
+    parts.push(seg('LTV',R(v.val||0),cpLtvCap(L)));
+  } else if(P==='dscr'){
+    parts.push(seg('LTV',R(v.val||0),0));
+  }
+  parts=parts.filter(Boolean);
+  if(!parts.length) return '';
+  return parts.join(' <span style="color:#cbd5e1">\u00b7</span> ');
+}
+var CC_TYPES_S={com:{rate:8.5,dscr:1.25,dy:8.5,ltv:.70},mixed:{rate:8.5,dscr:1.2,dy:8.5,ltv:.70},mf5:{rate:8.0,dscr:1.2,dy:8.0,ltv:.75}};
+var CC_FICO_S=[{ltvCap:.775,ratePrem:0},{ltvCap:.725,ratePrem:.875},{ltvCap:.625,ratePrem:2.25},{ltvCap:.55,ratePrem:3.5}];
+function ccFicoIdxS(){var n=spFicoVal();return n>=740?0:(n>=680?1:(n<640?3:2));}
+function ccTypeS(L){return CC_TYPES_S[L.prop]||CC_TYPES_S.com;}
+function rateCC(L){return ccTypeS(L).rate+CC_FICO_S[ccFicoIdxS()].ratePrem;}
+function cpLtvCap(L){return Math.min(ccTypeS(L).ltv,CC_FICO_S[ccFicoIdxS()].ltvCap);}
+function cpDscrFloor(L){return Math.max(ccTypeS(L).dscr,[0,0,1.35,1.40][ccFicoIdxS()]);}
+function compute(i,bridgePayoff){
+  const L=legs[i], v=L.vals, o={lines:[],cashOut:0,cashNeed:0,loan:0};
+  const P=L.program, pur=L.purpose;
+  if(P==='dscr'){
+    const A=adjusters(L);
+    const io=(v.payType||'amort30')!=='amort30';
+    const baseCap=esLtvCap(L.prop,pur); /* v20: ES cap held internally, not a visible field */
+    const effLtv=Math.max(0,baseCap-(A.dltv||0)); /* fti / STR each shave 5% LTV */
+    const dscrMinE=esDscrMin();
+    const ppp=(v.ppp||'5yr');
+    const bmap={std:'par',lowfee:'par',lowrate:'par',par:'par',buy1:'buy1',credit1:'credit1'};
+    const buyd=bmap[v.buyd]||'par';
+    const fico=parseFloat(document.getElementById('spFico')&&document.getElementById('spFico').value)||0;
+    /* --- ES auto-pricing loop: rate depends on the loan's CLTV / size / DSCR buckets, which depend on the rate --- */
+    let noteRate=(v.rate>0)?v.rate:7.0, es=null;
+    for(let k=0;k<6;k++){
+      const eff=noteRate+A.dr;
+      const maxPI_k=v.rent/dscrMinE-v.ti;
+      const dscrLoan_k=maxPI_k>0?(io?maxPI_k/(eff/100/12):loanFromPmt(maxPI_k,eff)):0;
+      let capK=Math.min(v.val*effLtv/100,dscrLoan_k);
+      if(pur==='dp'&&(v.bal||0)>0)capK=Math.min(capK,v.bal);
+      let loanK=(v.want>0)?Math.min(v.want,capK):capK;
+      if((pur==='rt'||pur==='dp')&&!(v.want>0)){
+        /* v19 FIX: ES prices the FUNDED loan \u2014 take-outs bucket at the payoff+costs target, not max qualifying */
+        const po=((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff)?bridgePayoff:(v.bal||0);
+        const pf=((v.pts||0)+(v.apts||0)+((es&&!es.na)?es.pts:0)+(v.esc||0))/100, ff=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0);
+        loanK=Math.min((po+ff)/(1-pf),capK);
+      }
+      loanK=Math.max(1,Math.round(loanK));
+      const payK=io?loanK*eff/100/12:pmt30(loanK,eff);
+      const dscrK=v.rent/(payK+v.ti);
+      es=esQuote({fico:fico,ltvPct:v.val>0?loanK/v.val*100:0,dscr:dscrK,loan:loanK,pur:pur,prop:L.prop,ppp:ppp,io:io,buyd:buyd,st4:(v.st4==='yes'),overrideRate:(v.rate>0)?v.rate:0});
+      if(v.rate>0)break;
+      if(es.na){noteRate=9.25;break;}
+      if(Math.abs(es.rate-noteRate)<0.001){noteRate=es.rate;break;}
+      noteRate=es.rate;
+    }
+    if(es&&es.na){o.hint=es.na+". Numbers use "+(v.rate>0?"your typed rate":"a 9.25% placeholder")+" \u2014 price this with an alternate lender.";}
+    const esPts=(es&&!es.na)?es.pts:0;
+    const effRate=noteRate+A.dr, effPts=(v.pts||0)+esPts;
+    const maxPI=v.rent/dscrMinE-v.ti;
+    const dscrLoan=maxPI>0?(io?maxPI/(effRate/100/12):loanFromPmt(maxPI,effRate)):0;
+    let cap=Math.min(v.val*effLtv/100,dscrLoan);
+    if(pur==='dp'&&(v.bal||0)>0) cap=Math.min(cap,v.bal);
+    o.cap=cap;
+    if(pur==='rt'||pur==='dp'){
+      /* TAKE-OUT sizing: loan targets payoff + costs + impound buffer (nets about $0), never balloons to max */
+      const payoff0=((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff)?bridgePayoff:(v.bal||0);
+      const impound=(v.ti||0)*(parseFloat(v.impoundMo)||0); /* v20: months of T&I escrowed at close */
+      const pctFees=((v.pts||0)+(v.apts||0)+esPts+(v.esc||0))/100, fixFees=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0)+impound;
+      o.impound=impound;
+      const target=(payoff0+fixFees)/(1-pctFees);
+      o.loan=(v.want>0)?Math.min(v.want,cap):Math.min(target,cap);
+      if(target>cap) o.warn="Rate & term needs "+fmt(target)+" to cover payoff + costs, but max qualifying is "+fmt(cap)+" \u2014 borrower brings the difference.";
+      if(cap>target+1000) o.headroom=cap-Math.min(target,cap);
+    } else {
+      o.loan=(v.want>0)?Math.min(v.want,cap):cap;
+      if(v.want>cap) o.warn="Desired "+fmt(v.want)+" exceeds max qualifying "+fmt(cap)+" \u2014 clamped to max.";
+    }
+    o.loan=Math.round(o.loan); /* PARITY: round to whole dollars BEFORE payment + fee math */
+    o.pay=io?o.loan*effRate/100/12:pmt30(o.loan,effRate);
+    const impoundNow=(v.ti||0)*(parseFloat(v.impoundMo)||0);
+    o.cc=closing(o.loan,v,effPts)+impoundNow; o.impound=impoundNow;
+    o.effRate=effRate;o.effPts=effPts;o.io=io;o.ioLabel=io?((v.payType==='io10'?'10':'5')+'-yr IO'):'30-yr amortizing';
+    o.esPts=esPts; o.noteRate=noteRate;
+    o.lines.push(["Max qualifying loan ("+(dscrLoan<v.val*effLtv/100?"DSCR governs":("LTV governs"+(A.dltv?" @ "+effLtv+"% after overlays":"")))+")",fmt(o.cap)]);
+    if(Math.abs(effRate-noteRate)>1e-9||Math.abs(effPts-(v.pts||0))>1e-9) o.lines.push(["Effective rate / pts",effRate.toFixed(3)+"% / "+effPts.toFixed(2)+" pts"]);
+    o.lines.push([(io?"Payment (IO)":"P&I"),fmt(o.pay)+"/mo ("+o.ioLabel+")"],
+      ["DSCR",(v.rent/(o.pay+v.ti)).toFixed(2)+"x"]);
+    if(o.impound)o.lines.push([(parseFloat(v.impoundMo)||0)+"-mo T&I impound escrowed",fmt(o.impound)]);
+    if(A.tag.length)o.lines.push(["Overlays",A.tag.join(' \u00b7 ')]);
+    if(pur==='purchase'){const emdL=(v.emd||0);o.emd=emdL;o.cashNeed=(v.val-o.loan)+o.cc-emdL;if(emdL)o.lines.push(["Less EMD already in escrow","\u2212"+fmt(emdL)]);o.key=["CASH TO CLOSE",fmt(o.cashNeed)];}
+    else{const payoff=(L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff?bridgePayoff:(v.bal||0);
+      o.payoff=payoff; const net=o.loan-payoff-o.cc;
+      if(pur==='co'){o.cashOut=net;o.key=["NET CASH OUT",fmt(net)];}
+      else{o.exitNet=net;
+        o.key=[Math.abs(net)<1000?"TAKE-OUT \u2014 NETS $0 (pays off + costs)":(net>=0?"CASH BACK":"YOU BRING"),Math.abs(net)<1000?"$0":fmt(Math.abs(net))];
+        if(o.headroom) o.lines.push(["Unused capacity (switch to Cash-Out to take it)",fmt(o.headroom)]);}}
+  }
+  /* v19: COMMERCIAL PERM — sizes off annual NOI and amortization years, not monthly rent / 30-yr */
+  if(P==='cperm'){
+    const noteRate=(v.rate>0)?v.rate:rateCC(L), effRate=noteRate, effPts=(v.pts||0);
+    o.noteRate=noteRate; o.dyGhost=ccTypeS(L).dy;
+    const n=(v.amYrs||25)*12, m=effRate/100/12;
+    const dscrFloorE=cpDscrFloor(L);
+    const maxPI=(v.noi||0)/12/dscrFloorE;
+    const dsLoan=maxPI>0?maxPI*(1-Math.pow(1+m,-n))/m:0;
+    const dyE=(v.dyMin>0)?v.dyMin:ccTypeS(L).dy; /* debt yield: type-derived default, overridable */
+    const dyLoan=(dyE>0)?(v.noi||0)/(dyE/100):Infinity;
+    const cpLtv=cpLtvCap(L)*100; /* type + FICO LTV cap, held internally */
+    let cap=Math.min(v.val*(cpLtv)/100,dsLoan,dyLoan);
+    if(pur==='dp'&&(v.bal||0)>0) cap=Math.min(cap,v.bal);
+    o.cap=cap;
+    if(pur==='rt'||pur==='dp'){
+      const payoff0=((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff)?bridgePayoff:(v.bal||0);
+      const pctFees=((v.pts||0)+(v.apts||0)+(v.esc||0))/100, fixFees=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0);
+      const target=(payoff0+fixFees)/(1-pctFees);
+      o.loan=(v.want>0)?Math.min(v.want,cap):Math.min(target,cap);
+      if(target>cap) o.warn="Rate & term needs "+fmt(target)+" to cover payoff + costs, but max qualifying is "+fmt(cap)+" — borrower brings the difference.";
+      if(cap>target+1000) o.headroom=cap-Math.min(target,cap);
+    } else {
+      o.loan=(v.want>0)?Math.min(v.want,cap):cap;
+      if(v.want>cap) o.warn="Desired "+fmt(v.want)+" exceeds max qualifying "+fmt(cap)+" — clamped to max.";
+    }
+    o.loan=Math.round(o.loan); /* PARITY: round before fee math */
+    o.pay=o.loan>0?o.loan*m/(1-Math.pow(1+m,-n)):0; o.cc=closing(o.loan,v);
+    o.effRate=effRate;o.effPts=effPts;
+    const dscrNow=o.pay>0?((v.noi||0)/12)/o.pay:0;
+    const ltvL=v.val*cpLtv/100;
+    const gov=(Math.abs(cap-ltvL)<1)?("LTV governs @ "+cpLtv+"%"):(Math.abs(cap-dsLoan)<1?"NOI DSCR governs":"Debt-yield governs");
+    o.lines.push(["Max qualifying loan ("+gov+")",fmt(o.cap)],
+      ["Rate / pts ("+(v.amYrs||25)+"-yr am)",effRate.toFixed(2)+"% / "+effPts.toFixed(2)+" pts"],
+      ["P&I payment",fmt(o.pay)+"/mo"],
+      ["DSCR (NOI basis)",dscrNow.toFixed(2)+"x"]);
+    if(pur==='purchase'){const emdL=(v.emd||0);o.emd=emdL;o.cashNeed=(v.val-o.loan)+o.cc-emdL;if(emdL)o.lines.push(["Less EMD already in escrow","\u2212"+fmt(emdL)]);o.key=["CASH TO CLOSE",fmt(o.cashNeed)];}
+    else{const payoff=(L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff?bridgePayoff:(v.bal||0);
+      o.payoff=payoff; const net=o.loan-payoff-o.cc;
+      if(pur==='co'){o.cashOut=net;o.key=["NET CASH OUT",fmt(net)];}
+      else{o.exitNet=net;
+        o.key=[Math.abs(net)<1000?"TAKE-OUT — NETS $0 (pays off + costs)":(net>=0?"CASH BACK":"YOU BRING"),Math.abs(net)<1000?"$0":fmt(Math.abs(net))];
+        if(o.headroom) o.lines.push(["Unused capacity (switch to Cash-Out to take it)",fmt(o.headroom)]);}}
+  }
+  if(P==='ff'||P==='guc'){
+    const A=adjusters(L);
+    const autoBase=(P==='ff')?rateFF(L):rateGUC(L);
+    const noteRate=(v.rate>0)?v.rate:autoBase;
+    const bx=buydAdj(P,v);
+    const effRate=noteRate+bx.dr, effPts=bx.pts;
+    o.noteRate=noteRate;
+    /* refinance support — cost basis = payoff + rehab when purpose is refi/cash-out */
+    const isRefiF=(pur==='co'||pur==='rt'||pur==='dp');
+    const cost=(isRefiF?((v.bal||0)+(v.rehab||0)):(v.pp+(v.rehab||0)));
+    const caps=(P==='ff')?capFF():capGUC(); /* main-calc caps, held internally */
+    const ltcL=cost*caps.ltc, ltarvL=v.arv*caps.ltarv;
+    const cap=Math.min(ltcL,ltarvL); o.cap=cap;
+    o.loan=(v.want>0)?Math.min(v.want,cap):cap;
+    if(v.want>cap) o.warn="Desired "+fmt(v.want)+" exceeds max qualifying "+fmt(cap)+" \u2014 clamped to max.";
+    o.loan=Math.round(o.loan); /* PARITY: round before fee math */
+    o.pay=o.loan*effRate/100/12; o.cc=closing(o.loan,v,effPts);
+    o.ir=o.pay*(v.irMo??(v.term||12)); o.irCollected=((v.irMode||'pof')==='close');
+    o.pre=(v.haz||0)+(v.taxpro||0);
+    o.effRate=effRate;o.effPts=effPts;
+    const minMoF=parseFloat(v.minIntMo)||0, exitMoF=(v.payoffMo!==undefined&&v.payoffMo!=='')?(parseFloat(v.payoffMo)||0):(v.term||12);
+    const shortMoF=Math.max(0,minMoF-exitMoF);
+    o.trueup=Math.round(shortMoF*o.pay); o.payoffDue=o.loan+o.trueup;
+    o.lines.push([(isRefiF?"Cost basis (payoff + rehab)":"Total cost"),fmt(cost)],["Max qualifying loan ("+(ltcL<=ltarvL?"LTC":"LTARV cap")+" governs)",fmt(o.cap)]);
+    if(v.rate>0&&(effRate!==v.rate||effPts!==(v.pts||0))) o.lines.push(["Effective rate / pts",effRate.toFixed(2)+"% / "+effPts.toFixed(2)+" pts"]);
+    o.lines.push(["IO payment",fmt(o.pay)+"/mo"]);
+    if(o.ir)o.lines.push([o.irCollected?"Interest reserve collected":"Interest reserve \u2014 proof of funds (not collected)",fmt(o.ir)]);
+    if(o.pre)o.lines.push(["Prepaid hazard + taxes at close",fmt(o.pre)]);
+    if(o.trueup)o.lines.push(["Min-interest true-up at payoff ("+shortMoF+" mo short of "+minMoF+"-mo min)",fmt(o.trueup)]);
+    if(isRefiF){
+      const net=o.loan-(v.bal||0)-(v.rehab||0)-o.cc-o.ir-o.pre;
+      if(pur==='co'){o.cashOut=net;o.key=["NET CASH OUT (after rehab escrow)",fmt(net)];}
+      else{o.cashNeed=Math.max(0,-net);
+        o.key=(net>=0)?["CASH BACK AT CLOSE",fmt(net)]:["CASH TO CLOSE",fmt(-net)];}
+    } else {
+      /* v20: ground-up on owned land — land basis counts as equity, not day-1 cash */
+      const ownedCredit=(P==='guc'&&(v.landOwned||'no')==='yes')?(v.pp||0):0;
+      const sc=((v.sellerCrMode||'usd')==='pct')?((v.pp||0)*(v.sellerCr||0)/100):(v.sellerCr||0);
+      const emdL=(v.emd||0); o.emd=emdL;
+      o.down=cost-o.loan; o.cashNeed=o.down+o.cc+o.ir+o.pre-ownedCredit-sc-emdL; o.cashDue=o.cashNeed-(o.irCollected?0:o.ir);
+      if(ownedCredit)o.lines.push(["Land equity credited (owned free & clear)","\u2212"+fmt(ownedCredit)]);
+      if(sc)o.lines.push([(((v.sellerCrMode||'usd')==='pct')?("Seller credit ("+(v.sellerCr||0)+"% of price)"):"Seller credit applied"),"\u2212"+fmt(sc)]);
+      if(emdL)o.lines.push(["Less EMD already in escrow","\u2212"+fmt(emdL)]);
+      if(!o.irCollected&&o.ir&&o.cashNeed>0){o.lines.push(["Cash due at closing (reserve not collected)",fmt(o.cashDue)]);o.key=["TOTAL LIQUIDITY TO SHOW",fmt(o.cashNeed)];}
+      else o.key=(o.cashNeed<0)?["CASH BACK AT CLOSE",fmt(-o.cashNeed)]:["CASH TO CLOSE",fmt(o.cashNeed)];
+      if(o.cashNeed<0)o.cashNeed=0;
+    }
+  }
+  if(P==='bridge'||P==='hm'||P==='land'){
+    const A=(P==='land')?{dr:0,dp:0,tag:[]}:adjusters(L);
+    let noteRate2, effRate, effPts;
+    if(P==='bridge'){noteRate2=(v.rate>0)?v.rate:rateBridge(L);o.noteRate=noteRate2;const bx=buydAdj(P,v);effRate=noteRate2+bx.dr;effPts=bx.pts;}
+    else{effRate=v.rate+A.dr;effPts=(v.pts||0)+A.dp;}
+    const capLtvInternal=(P==='bridge')?0.65:((P==='hm')?0.65:0.50); /* hidden internal caps */
+    const cap=v.val*capLtvInternal; o.cap=cap;
+    o.loan=(v.want>0)?Math.min(v.want,cap):cap;
+    if(v.want>cap) o.warn="Desired "+fmt(v.want)+" exceeds max qualifying "+fmt(cap)+" — clamped to max.";
+    o.loan=Math.round(o.loan); /* v19 PARITY: round before fee math */
+    o.pay=o.loan*effRate/100/12; o.cc=closing(o.loan,v,effPts);
+    o.ir=(P!=='land')?o.pay*(v.irMo??(v.term||12)):0; o.irCollected=((v.irMode||'pof')==='close');
+    o.pre=(v.haz||0)+(v.taxpro||0); /* v19: prepaids due at close */
+    o.effRate=effRate;o.effPts=effPts;
+    /* v19: minimum-interest true-up */
+    const minMoB=parseFloat(v.minIntMo)||0, exitMoB=(v.payoffMo!==undefined&&v.payoffMo!=='')?(parseFloat(v.payoffMo)||0):(v.term||12);
+    const shortMoB=Math.max(0,minMoB-exitMoB);
+    o.trueup=Math.round(shortMoB*o.pay); o.payoffDue=o.loan+o.trueup;
+    o.lines.push(["Max qualifying @ "+(capLtvInternal*100)+"% LTV",fmt(o.cap)]);
+    const rateBaseB=(P==='bridge')?noteRate2:v.rate;
+    if(v.rate>0&&(effRate!==rateBaseB||effPts!==(v.pts||0))) o.lines.push(["Effective rate / pts",effRate.toFixed(2)+"% / "+effPts.toFixed(2)+" pts"]);
+    o.lines.push(["IO payment",fmt(o.pay)+"/mo"]);
+    if(o.ir)o.lines.push([o.irCollected?"Interest reserve collected":"Interest reserve \u2014 proof of funds (not collected)",fmt(o.ir)]);
+    if(o.pre)o.lines.push(["Prepaid hazard + taxes at close",fmt(o.pre)]);
+    if(o.trueup)o.lines.push(["Min-interest true-up at payoff ("+shortMoB+" mo short of "+minMoB+"-mo min)",fmt(o.trueup)]);
+    if(pur==='co'){o.cashOut=o.loan-(v.bal||0)-o.cc-o.pre;o.key=["NET CASH OUT",fmt(o.cashOut)];}
+    else if(pur==='purchase'){const emdL=(v.emd||0);o.emd=emdL;o.down=v.val-o.loan;o.cashNeed=o.down+o.cc+(o.ir||0)+o.pre-emdL;o.cashDue=o.cashNeed-(o.irCollected?0:(o.ir||0));if(emdL)o.lines.push(["Less EMD already in escrow","\u2212"+fmt(emdL)]);if(!o.irCollected&&o.ir&&o.cashNeed>0){o.lines.push(["Cash due at closing (reserve not collected)",fmt(o.cashDue)]);o.key=["TOTAL LIQUIDITY TO SHOW",fmt(o.cashNeed)];}else o.key=["CASH TO CLOSE",fmt(o.cashNeed)];}
+    else{const net=o.loan-(v.bal||0)-o.cc-o.pre;o.key=[net>=0?"CASH BACK":"YOU BRING",fmt(Math.abs(net))];}
+  }
+  if(P==='gap'){
+    const cltvInternal=75; const max2=Math.max(0,v.val*cltvInternal/100-(v.bal1||0)); o.cap=max2;
+    o.loan=(v.want>0)?Math.min(v.want,max2):max2;
+    if(v.want>max2) o.warn="Desired "+fmt(v.want)+" exceeds max 2nd at "+cltvInternal+"% CLTV ("+fmt(max2)+") — clamped.";
+    o.loan=Math.round(o.loan); /* v19 PARITY: round before fee math */
+    o.pay=o.loan*v.rate/100/12; o.cc=closing(o.loan,v);
+    o.cashOut=o.loan-o.cc;
+    o.lines.push(["Max 2nd @ "+cltvInternal+"% CLTV",fmt(max2)],["Payment (IO)",fmt(o.pay)+"/mo"]);
+    o.key=["NET CASH PROVIDED",fmt(o.cashOut)];
+  }
+  if(P==='heloc'){
+    const amt=Math.round(Math.min(v.amt,v.limit)); o.cap=v.limit; /* v19 PARITY */
+    if(v.amt>v.limit) o.warn="Draw exceeds line limit "+fmt(v.limit)+" — clamped.";
+    o.cashOut=amt;o.pay=amt*v.rate/100/12;o.loan=amt;
+    o.lines.push(["Line limit",fmt(v.limit)],["Drawn",fmt(amt)],["Payment",fmt(o.pay)+"/mo"]);
+    o.key=["CASH PROVIDED",fmt(amt)];
+  }
+  if(P==='sale'){
+    const payoff=bridgePayoff||v.bal||0; o.payoff=payoff;
+    const costs=v.price*v.sellpct/100;
+    const net=v.price-costs-payoff; o.exitNet=net; o.pay=0; o.loan=0;
+    o.lines.push(["Sale price",fmt(v.price)],["Selling costs ("+v.sellpct+"%)",fmt(costs)],["Pays off bridge",fmt(payoff)]);
+    o.key=[net>=0?"NET PROCEEDS":"SHORTFALL AT SALE",fmt(Math.abs(net))];
+  }
+  /* feasibility + advisory hints */
+  if((pur==='co'||pur==='rt'||pur==='dp')&&(P==='dscr'||P==='cperm'||P==='bridge'||P==='hm'||P==='land')){
+    const payoff=(L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&bridgePayoff?bridgePayoff:(v.bal||0);
+    if(o.loan<payoff) o.err="NOT FEASIBLE — loan "+fmt(o.loan)+" doesn't cover the "+fmt(payoff)+" payoff.";
+  }
+  if(P==='dscr'&&L.occ==='oo') o.hint="Owner-occ selected: DSCR programs require non-owner-occupied — lender pool shrinks sharply.";
+  if(P==='dscr'&&(v.rentBasis||'lt')==='str'&&!o.hint) o.hint="STR income basis: many DSCR lenders cap leverage about 5% lower or require LT market rent — lender pool narrows.";
+  if((P==='ff'||P==='guc')&&document.getElementById('spExp')&&document.getElementById('spExp').value==='0'&&!o.hint) o.hint="First-time investor: expect LTC 5-10% lower and some F&F/construction lenders to decline — experience tier matters.";
+  if((L.prop==='com'||L.prop==='mixed'||L.prop==='mf5')&&(v.ltv||0)>70&&(P==='cperm'||P==='bridge'||P==='hm')) o.hint2="Commercial/mixed-use/MF5+ typically caps 65-70% LTV — "+v.ltv+"% may be optimistic.";
+  return o;
+}
+
+/* ---------- RENDER ---------- */
+
+/* ---------- INPUT FORMATTING: $ + commas for money, % suffix for rates ---------- */
+const MONEY_KEYS=['want','val','pp','rehab','arv','bal','bal1','uw','doc','appr','limit','amt','price','rent','ti','noi','haz','taxpro','sellerCr','emd','proc'];
+const PCT_KEYS=['ltv','ltc','ltarv','cltv','rate','pts','apts','esc','sellpct','dyMin'];
+function fmtIn(n){return (n===0||n)?Number(n).toLocaleString('en-US'):'';}
+function inputRow(i,f,vals){
+  const key=f[0];let label=f[1];const val=vals[key]??f[2];
+  if(key==='val'&&legs[i]&&legs[i].purpose==='purchase'&&['bridge','dscr','cperm','land'].includes(legs[i].program))label='Purchase price';
+  const isM=MONEY_KEYS.includes(key), isP=PCT_KEYS.includes(key);
+  const AUTO_RATE_PROGS=['dscr','ff','guc','bridge','cperm'];
+  const isAutoRate=(key==='rate'&&legs[i]&&AUTO_RATE_PROGS.includes(legs[i].program));
+  const isAutoDY=(key==='dyMin'&&legs[i]&&legs[i].program==='cperm');
+  const buydActiveP=(legs[i]&&['ff','guc','bridge'].includes(legs[i].program)&&(legs[i].vals.buyd==='lowfee'||legs[i].vals.buyd==='lowrate'));
+  const isLeverPts=(key==='pts'&&buydActiveP);
+  const isAutoField=isAutoRate||isAutoDY||isLeverPts;
+  const shown=(((isAutoRate||isAutoDY)&&!(val>0))||isLeverPts)?'':(isM?fmtIn(val):val);
+  const boldLbl=(key==='want'||key==='rate');
+  const isAutoTI=(key==='ti'&&legs[i]&&legs[i].tiAuto&&!legs[i].tiTouched); /* v20: gray when state-derived */
+  const grayStyle=(isAutoTI||isLeverPts)?'color:#94a3b8;':'';
+  return `<div class="row"><label${boldLbl?' style="font-weight:800;color:var(--ink)"':''}>${label}</label>
+    <span style="display:flex;align-items:center;gap:3px">
+      ${isM?'<span style="color:#94a3b8;font-size:12px">$</span>':''}
+      <input type="text" inputmode="decimal" id="in_${i}_${key}" value="${shown}" ${isAutoField?'placeholder=""':''} style="${grayStyle}width:${isM?'104px':'80px'}"
+        oninput="setVal(${i},'${key}',this.value)"
+        onblur="if(${isM})this.value=fmtIn(parseFloat(String(this.value).replace(/,/g,''))||0)">
+      ${isP?'<span style="color:#94a3b8;font-size:12px">%</span>':''}
+    </span></div>`;
+}
+function opts(map,sel){return Object.entries(map).map(([k,v])=>`<option value="${k}" ${k===sel?'selected':''}>${v}</option>`).join('');}
+function render(){
+  const wrap=document.getElementById('legs'); wrap.innerHTML='';
+  legs.forEach((L,i)=>{
+    if(L.program==='hm') L.program='bridge'; /* Hard money IO merged into Bridge */
+    var _vpr=PROG_BY_ROLE[roleOf_(L)]; if(_vpr.indexOf(L.program)<0) L.program=_vpr[0]; /* keep program valid for this leg's role */
+    if(L.role.includes("SOURCE")&&!['co','dp'].includes(L.purpose)) L.purpose='co';
+    if((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))&&!['rt','co','dp'].includes(L.purpose)) L.purpose='rt';
+    let fields=[...(PROGRAM_FIELDS[L.program]||[]),...(PURPOSE_FIELDS[L.purpose]||[])];
+    if(['co','rt','dp'].includes(L.purpose)&&['ff','guc'].includes(L.program)) fields=fields.filter(function(f){return f[0]!=='pp';}); /* refi: no purchase price — cost basis is payoff + rehab */
+    /* v19: solver moved inline next to the Loan Amount input (originators think in targets) */
+    const sm=solverMeta(L,i);
+    const rows=fields.map(f=>{
+      let h=inputRow(i,f,L.vals);
+      if(f[0]==='want'&&sm) h=h.replace('</span></div>',`<button class="icoSolve" title="${sm.tip}" onclick="${sm.fn}(${i})">⌖ ${sm.short}</button></span></div>`);
+      if(f[0]==='want') h+=`<div id="ltv_${i}" style="text-align:right;font-size:12px;font-weight:700;margin:-4px 2px 9px 0;letter-spacing:.2px"></div>`;
+      return h;
+    }).join('');
+    const feeDefs=BRIDGE_TYPE.includes(L.program)?FEE.concat(PREPAID):FEE;
+    const feeRows=feeDefs.map(f=>inputRow(i,f,L.vals)).join('');
+    wrap.innerHTML+=`
+    <div class="leg ${L.on?'':'off'}">
+      <div class="lhead"><div style="flex:1"><div class="t">${L.role}</div>
+        <input class="addr" value="${L.addr}" oninput="legs[${i}].addr=this.value">
+      </div><button class="onoff" onclick="legs[${i}].on=!legs[${i}].on;render()">${L.on?'ON':'OFF'}</button></div>
+      <div class="selgrid">
+        <div><label>LOAN PURPOSE</label><select onchange="setSel(${i},'purpose',this.value)">${opts(L.role.includes("SOURCE")?SOURCE_PURPOSES:((L.role.includes("EXIT")||L.role.includes("TAKE-OUT"))?EXIT_PURPOSES:PURPOSES),L.purpose)}</select></div>
+        <div><label>LOAN PROGRAM</label><select onchange="setSel(${i},'program',this.value)">${progOpts_(L)}</select></div>
+        <div><label>PROPERTY TYPE</label><select onchange="setSel(${i},'prop',this.value)">${opts(PROPS,L.prop)}</select></div>
+        <div><label>OCCUPANCY</label><select onchange="setSel(${i},'occ',this.value)">${opts(OCC,L.occ)}</select></div>
+        <div><label>STATE (auto-tax)</label><select onchange="setState(${i},this.value)">${opts(STATES,L.state||'')}</select></div>
+      </div>
+      <div class="body">${L.on?rows+`
+        <div class="btnrow">
+          <button class="mini${(L.openPanels&&L.openPanels.lev)?' on':''}" onclick="togglePanel('lev${i}',this)">⚙ Fees & levers</button>
+          <button class="mini${(L.openPanels&&L.openPanels.lnd)?' on':''}" onclick="togglePanel('lnd${i}',this)">★ Top lenders</button>
+        </div>
+        <div class="panel${(L.openPanels&&L.openPanels.lev)?' open':''}" id="lev${i}"><div class="ph">ITEMIZED FEES (feed the detailed email)</div>${feeRows}
+          <div class="ph" style="margin-top:6px">LEVERS (all wired — each changes the numbers)</div>
+          ${leverRows(i)}
+        </div>
+        <div class="panel${(L.openPanels&&L.openPanels.lnd)?' open':''}" id="lnd${i}"><div class="ph">TOP 3 FITS</div><div id="list${i}"></div></div>
+        <div id="outs${i}"></div>`
+      :`<div class="row"><label>Leg OFF — excluded from totals and the email.</label></div>`}</div>
+    </div>`;
+  });
+  refresh();
+}
+function setSel(i,k,v){legs[i][k]=v;
+  if(k==='program'){
+    /* v19 FIX: switching programs no longer wipes typed money fields.
+       Rule: money keys (want, val, pp, rehab, arv, rent, ti, bal...) that exist in BOTH programs carry over;
+       pricing keys (rate/LTV/LTC/term) take the NEW program's defaults; fees + prepaids always carry. */
+    const old=legs[i].vals, nv={...old}; /* dormant keys survive round-trips (ff -> bridge -> ff keeps pp) */
+    (PROGRAM_FIELDS[v]||[]).forEach(f=>{
+      if(MONEY_KEYS.includes(f[0])){if(nv[f[0]]===undefined)nv[f[0]]=f[2];}
+      else nv[f[0]]=f[2]; /* pricing keys (rate/LTV/LTC/term) take the NEW program's defaults */
+    });
+    FEE.forEach(f=>{if(nv[f[0]]===undefined)nv[f[0]]=f[2];});
+    PREPAID.forEach(f=>{if(nv[f[0]]===undefined)nv[f[0]]=f[2];});
+    (PURPOSE_FIELDS[legs[i].purpose]||[]).forEach(f=>{if(nv[f[0]]===undefined)nv[f[0]]=f[2];});
+    legs[i].vals=nv;
+  }
+  if(k==='purpose'){(PURPOSE_FIELDS[v]||[]).forEach(f=>{if(!(f[0] in legs[i].vals))legs[i].vals[f[0]]=f[2];});}
+  render();}
+function setState(i,v){
+  legs[i].state=v;
+  /* auto-fill T&I in light gray unless user has manually overridden */
+  const val=legs[i].vals.val||legs[i].vals.pp||0;
+  const auto=autoTI(v,val);
+  if(auto!==null && !legs[i].tiTouched){ legs[i].vals.ti=auto; legs[i].tiAuto=true; }
+  render();
+}
+function setVal(i,k,v){
+  if(k==='ti'){legs[i].tiTouched=true;legs[i].tiAuto=false;} /* manual override sticks */
+  if((k==='val'||k==='pp')&&legs[i].state&&!legs[i].tiTouched){const a=autoTI(legs[i].state,parseFloat(String(v).replace(/,/g,''))||0);if(a!==null){legs[i].vals.ti=a;legs[i].tiAuto=true;}}legs[i].vals[k]=parseFloat(String(v).replace(/,/g,''))||0;refresh();}
+function togglePanel(id,btn){const p=document.getElementById(id);p.classList.toggle('open');const isOpen=p.classList.contains('open');btn.classList.toggle('on',isOpen);const m=id.match(/^(lev|lnd)(\d+)$/);if(m&&legs[+m[2]]){const L=legs[+m[2]];L.openPanels=L.openPanels||{};L.openPanels[m[1]]=isOpen;}}
+function showTab(){}
+function toggleEmail(){
+  const b=document.getElementById('tab0'), t=document.getElementById('emailToggle');
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  t.innerHTML=(open?'▸':'▾')+' BORROWER EMAIL (SHORT / DETAILED) — CLICK TO '+(open?'EXPAND':'COLLAPSE');
+  if(!open)refresh();
+}
+function setMode(m){emailMode=m;
+  document.getElementById('mShort').classList.toggle('on',m==='short');
+  document.getElementById('mDet').classList.toggle('on',m==='detailed');
+  refresh();}
+
+/* ---------- EMAIL BUILDERS ---------- */
+const S={
+  col:"vertical-align:top;background:#f7f9fc;border-radius:12px;padding:14px 16px;",
+  colX:"vertical-align:top;background:#ffffff;border-left:2px solid #4a90b8;border-right:2px solid #4a90b8;padding:14px 16px;",
+  colXtop:"border-top:2px solid #4a90b8;border-top-left-radius:12px;border-top-right-radius:12px;",
+  colXbot:"border-bottom:2px solid #4a90b8;border-bottom-left-radius:12px;border-bottom-right-radius:12px;",
+  step:"font-size:11px;font-weight:800;letter-spacing:.8px;color:#8195aa",
+  stepX:"font-size:11px;font-weight:800;letter-spacing:.8px;color:#2e75b6",
+  h2:"font-size:16px;margin:1px 0;color:#152c4e;font-weight:700",
+  amt:"font-size:27px;font-weight:800;color:#152c4e;margin:0 0 6px",
+  ln:"display:flex;justify-content:space-between;padding:2px 0;font-size:12.5px",
+  sub2:"display:flex;padding:1px 0 1px 12px;color:#64748b;font-size:11.5px",
+  ok:"color:#16a34a;font-weight:700;white-space:nowrap",
+  sect:"font-size:11px;font-weight:800;letter-spacing:.6px;color:#2e75b6;margin:12px 0 4px;border-top:1px solid #dbe3ec;padding-top:9px",
+  sect1:"font-size:11px;font-weight:800;letter-spacing:.6px;color:#2e75b6;margin:10px 0 4px",
+  box:"background:#eef4fa;border:1px solid #cddcec;border-radius:8px;padding:7px 11px;margin:2px 0 4px",
+  hold:"background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 11px;margin:4px 0",
+  holdHd:"font-size:11px;font-weight:800;letter-spacing:.4px;color:#b45309;margin-bottom:2px",
+  opts:"background:#eef4fa;border:1px solid #cddcec;border-radius:8px;padding:7px 11px;font-size:11.5px;color:#334155;margin:4px 0",
+  banner:"background:#e8f5ec;border-radius:10px;text-align:center;padding:10px;margin:14px 0 8px;color:#1e7a45;font-weight:700;font-size:13px",
+  foot:"color:#8195aa;font-size:11px",
+  how:"background:#f2f5f9;border-left:4px solid #4a90b8;border-radius:8px;padding:9px 14px;margin:10px 0;font-size:12px",
+  sig:"border-top:1px solid #dbe3ec;margin-top:12px;padding-top:8px;color:#475569;font-size:11px"
+};
+const ln=(a,b,ok)=>`<div style="${S.ln}"><span>${a}</span><b style="${ok?S.ok:'white-space:nowrap'}">${b}</b></div>`;
+const sub2=t=>`<div style="${S.sub2}"><span>${t}</span></div>`;
+
+function headerCell(L,r,idx,isExit,first){
+  const shownRate=(r.effRate!==undefined?r.effRate:L.vals.rate); /* v19 FIX: sale legs have no rate */
+  const rateTerm=(shownRate===undefined)?"—":((L.program==='dscr')?(shownRate.toFixed(2)+"% · "+(r.io?r.ioLabel:"30-yr")):((L.program==='cperm')?(shownRate.toFixed(2)+"% · "+(L.vals.amYrs||25)+"-yr am"):(shownRate.toFixed(2)+"% IO"+(L.vals.term?(" · "+L.vals.term+"-mo"):""))));
+  return `<div style="${isExit?S.stepX:S.step}">STEP ${idx+1} · ${isExit?'THE TAKE-OUT':(idx===0?'NOW':'NEXT')}</div>
+    <div style="${S.h2}">${PROGRAMS[L.program]}</div>
+    <div style="${S.amt}">${money(r.loan||0)}</div>
+    ${ln("Rate · term","<b>"+rateTerm+"</b>")}`;
+}
+function storyCell(L,r,isExit){
+  const v=L.vals;
+  if(L.program==='ff'||L.program==='guc'){
+    const dayOne=r.loan-v.rehab;
+    return `<div style="${S.sect1}">HOW THE ${money(r.loan)} IS FUNDED</div>`
+      +ln("Funded at closing ("+(L.program==='guc'?'land/basis':'purchase')+")",money(dayOne)+" ✓",true)
+      +`<div style="${S.hold}"><div style="${S.holdHd}">${L.program==='guc'?'CONSTRUCTION':'REHAB'} BUDGET — HELD BY LENDER: ${money(v.rehab)}</div>`
+      +sub2("Held in a draw account, not paid out at closing")
+      +sub2("Released in stages as work is completed &amp; inspected")
+      +sub2("You front each phase, then draws reimburse you")+`</div>`
+      +ln("Total loan ("+(L.program==='guc'?'basis + construction':'purchase + rehab')+")",money(r.loan));
+  }
+  if(L.program==='dscr'&&L.purpose!=='purchase'){
+    return `<div style="${S.sect1}">WHAT THIS LOAN DOES</div>`
+      +ln("Pays off "+(r.payoff&&isExit?"the bridge":"existing debt"),money(r.payoff||0)+" ✓",true)
+      +`<div style="${S.opts}"><b style="color:#2e75b6">* Rate vs. fees — you have options.</b> This quote uses today's lower rate (${(r.effRate!==undefined?r.effRate:(v.rate||0)).toFixed(2)}%) with standard closing costs, because over a 30-year loan the lower rate saves you more. Prefer lower upfront costs? We can raise the rate slightly and cut the fees — ask and we'll run both side by side.</div>`;
+  }
+  if(L.program==='dscr'&&L.purpose==='purchase'){
+    return `<div style="${S.sect1}">WHAT THIS LOAN DOES</div>`+ln("Purchase financing",money(r.loan)+" ✓",true)
+      +ln("DSCR at market rent",(v.rent/(r.pay+v.ti)).toFixed(2)+"x");
+  }
+  if(L.program==='sale'){
+    return `<div style="${S.sect1}">WHAT THIS SALE DOES</div>`
+      +ln("Sale price",money(v.price))
+      +ln("Pays off the bridge",money(r.payoff||0)+" ✓",true);
+  }
+  const ltvShown=(v.val>0&&r.loan)?Math.round(r.loan/v.val*100):(v.ltv||'');
+  let note='';
+  if(L.program==='bridge') note=`<div style="${S.opts}"><b style="color:#2e75b6">* Why interest-only, short-term?</b> A bridge keeps your monthly cost low while you reposition the property — there's no principal paydown on a loan you'll refinance out of. Step 2 replaces it with long-term financing before it comes due.</div>`;
+  else if(L.program==='cperm') note=`<div style="${S.opts}"><b style="color:#2e75b6">* Qualifies on the property, not you.</b> This commercial loan is sized on the property's net operating income (NOI) and debt yield — not your personal income — and amortizes over ${v.amYrs||25} years to keep the payment manageable.</div>`;
+  else if(L.program==='land') note=`<div style="${S.opts}"><b style="color:#2e75b6">* Land is financed conservatively.</b> Lenders cap raw-land loans at a lower LTV because there's no income or structure behind them — interest-only holds your carrying cost down until you build or sell, and Step 2 takes it out.</div>`;
+  return `<div style="${S.sect1}">LOAN</div>`+ln("Loan"+(ltvShown?(" @ "+ltvShown+"% LTV"):""),money(r.loan))+note;
+}
+function payCell(L,r){
+  if(L.program==='sale') return `<div style="${S.sect1}">MONTHLY PAYMENT</div><div style="${S.box}">${ln("None — property is sold","—")}</div>`;
+  const label=(L.program==='dscr')?(r.io?("Est. monthly payment (IO — "+r.ioLabel+")"):"Est. monthly payment (P&amp;I)"):((L.program==='cperm')?("Est. monthly payment (P&amp;I, "+(L.vals.amYrs||25)+"-yr am)"):"Est. monthly payment (IO)");
+  return `<div style="${S.sect1}">MONTHLY PAYMENT</div><div style="${S.box}">${ln(label,money(r.pay||0))}</div>`;
+}
+function cashCell(L,r){
+  if(L.program==='sale'){
+    const v=L.vals, costs=v.price*v.sellpct/100;
+    return `<div style="${S.sect1}">AT CLOSE OF SALE</div>`
+      +ln("Selling costs ("+v.sellpct+"%)",money(costs))
+      +ln("Bridge payoff",money(r.payoff||0))
+      +ln(r.exitNet>=0?"Net proceeds to you":"Shortfall",money(Math.abs(r.exitNet)),true);
+  }
+  const v=L.vals, pts=r.loan*(r.effPts!==undefined?r.effPts:(v.pts||0))/100, apts=r.loan*(v.apts||0)/100, esc=r.loan*(v.esc||0)/100;
+  let rows=`<div style="${S.sect1}">CASH TO CLOSE</div>`;
+  if(r.down!==undefined) rows+=ln("Down payment (cost − day-1 funding)",money(r.down));
+  else rows+=ln("&nbsp;","&nbsp;");
+  const totalPts=pts+apts;                            /* lender + ASAP points, one line */
+  const processing=(v.proc||0)+(v.uw||0)+(v.doc||0);   /* processing + underwriting + loan doc, one line */
+  rows+=(totalPts?ln("Loan points",money(totalPts)):"")
+      +(processing?ln("Underwriting &amp; processing",money(processing)):"")
+      +(esc?ln("Est. Escrow &amp; title",money(esc)):"")
+      +(v.appr?ln("Appraisal &amp; third-party",money(v.appr)):"")
+      +((r.ir&&r.irCollected!==false)?ln("Interest reserve ("+(v.irMo??(v.term||12))+" mo, collected)",money(r.ir)):"")
+      +(r.pre?ln("Prepaid hazard insurance / taxes",money(r.pre)):"")
+      +(r.impound?ln("Tax &amp; insurance impound reserve",money(r.impound)):"")
+      +ln("Total closing costs",money((r.cc||0)+((r.ir&&r.irCollected!==false)?r.ir:0)+(r.pre||0)))
+      +(r.trueup?ln("Min-interest due at early payoff",money(r.trueup)):"");
+  const resvPoF=(r.ir>0&&r.irCollected===false&&r.cashDue!==undefined);
+  if(resvPoF){
+    rows+=ln("Cash to close",money(r.cashDue),true)
+        +`<div style="${S.ln};font-style:italic;color:#64748b"><span>Required Liquidity (interest reserve)</span><b style="white-space:nowrap;font-style:italic">${money(r.ir)}</b></div>`;
+  }
+  else if(r.cashNeed>0) rows+=ln("Total cash to close",money(r.cashNeed),true);
+  else if(r.cashOut) rows+=ln("Net cash out",money(r.cashOut),true);
+  else if(r.exitNet!==undefined) rows+=ln(r.exitNet>=0?"Cash back at close":"Cash to close (you bring)",money(Math.abs(r.exitNet)),true);
+  return rows;
+}
+function emailDetailed(on,results){
+  const addr=on[0].L.addr;
+  const n=on.length, w=Math.floor(100/n);
+  const cell=(html,isExit,extra)=>`<td width="${w}%" style="${isExit?S.colX:S.col}${extra||''}">${html}</td>`;
+  const gapTd='<td style="width:16px"></td>';
+  const rowOf=fn=>'<tr>'+on.map((x,j)=>{
+      const isExit=x.L.role.includes("EXIT")||x.L.role.includes("TAKE-OUT");
+      return cell(fn(x.L,x.r,j,isExit),isExit,'')+(j<n-1?gapTd:'');}).join('')+'</tr>';
+  // banner: first leg payment vs exit payment
+  const exitR=on.find(x=>x.L.role.includes("EXIT")||x.L.role.includes("TAKE-OUT"));
+  const holdLeg=on.find(x=>(x.L.program==='ff'||x.L.program==='guc'||x.L.program==='bridge')&&!(x.L.role.includes("EXIT")||x.L.role.includes("TAKE-OUT")));
+  const srcLeg=on.find(x=>x.L.purpose==='co'&&!(x.L.role.includes("EXIT")||x.L.role.includes("TAKE-OUT")));
+  const stepOf=(x)=>on.indexOf(x)+1;
+  // banner: the short-term loan being taken out (the bridge) vs the long-term exit, referencing the correct steps
+  let banner='';
+  if(exitR&&holdLeg&&holdLeg!==exitR){
+    const verb=(exitR.r.pay<holdLeg.r.pay)?'drops':'goes';
+    banner=`<div style="${S.banner}">When the ${PROGRAMS[exitR.L.program]} in Step ${stepOf(exitR)} pays off the Step ${stepOf(holdLeg)} loan, your monthly payment ${verb} from ${money(holdLeg.r.pay)} to ${money(exitR.r.pay)}.</div>`;
+  }
+  // how it works — plain language, correct step numbers, rookie-friendly
+  const hp=[];
+  if(srcLeg) hp.push(`<b>Step ${stepOf(srcLeg)}:</b> Refinance a property you already own and pull cash out — this is the cash you bring to the new deal.`);
+  if(holdLeg){const isG=holdLeg.L.program==='guc';const bv=isG?'funds the ground-up build':(srcLeg?'buys the property':'funds the purchase');
+    hp.push(`<b>Step ${stepOf(holdLeg)}:</b> This loan ${bv} and sets aside your ${money(holdLeg.L.vals.rehab)} ${isG?'construction':'rehab'} budget in a draw account. You're reimbursed in stages as the work is finished and inspected.`);}
+  if(exitR) hp.push(`<b>Step ${stepOf(exitR)}:</b> Lined up ahead of time. Once the property is fixed up and rented, it pays off the Step ${holdLeg?stepOf(holdLeg):'2'} loan and switches you into a long-term loan that qualifies on the property's rent — not your personal income. No scrambling when the short-term loan comes due.`);
+  const how=`<div style="${S.how}"><b style="color:#2e75b6">→ How it works</b><br>`+(hp.length?hp.join('<br>'):`This structure is arranged end to end in advance so there's no scrambling at maturity.`)+`</div>`;
+  return `<div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#1e293b;max-width:1000px;background:#fff">
+    <div style="background:#152c4e;color:#fff;padding:12px 22px;font-weight:800;font-size:16px">ASAP FUNDING <span style="color:#7fb3d3;font-weight:400;font-size:12px;font-style:italic">&nbsp;Simply... Better Lending</span><span style="float:right;font-weight:400;font-size:12px">ASAP-Funding.com</span></div>
+    <div style="padding:16px 20px">
+      <div style="font-size:23px;font-weight:800;color:#152c4e">Your ${n===2?'two-step ':n===3?'three-step ':''}financing plan</div>
+      <div style="color:#64748b;font-size:13px;margin-bottom:14px">${addr}${(document.getElementById('spName')&&document.getElementById('spName').value)?(" · Borrower: "+document.getElementById('spName').value):""} (estimates)</div>
+      <table style="width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed" cellspacing="0" cellpadding="0">
+        ${rowOf((L,r,j,x)=>headerCell(L,r,j,x))}
+        ${rowOf((L,r,j,x)=>storyCell(L,r,x))}
+        ${rowOf((L,r)=>payCell(L,r))}
+        ${rowOf((L,r)=>cashCell(L,r))}
+      </table>
+      ${banner}
+      <div style="${S.foot}">Prepaid hazard insurance and tax prorations shown on bridge-type loans are estimates — actuals come from the county and your policy. Ongoing monthly taxes and insurance are not included in bridge payments. Rehab draws are reimbursed after inspection; draw fees may apply.</div>
+      ${how}
+      <div style="${S.sig}">Daniel Kim · Director · 510-399-2727 · Daniel@ASAP-Funding.com<br><br>
+      Estimated figures based on the details provided, subject to full underwriting, appraisal, and final approval. Not a commitment to lend; rates and costs may change.<br>
+      ASAP Funding · NMLS #1871734 · CA DRE #02090117 · ASAP-Funding.com</div>
+    </div></div>`;
+}
+function emailShort(on){
+  const addr=on[0].L.addr; const n=on.length, w=Math.floor(100/n);
+  let cols='';
+  on.forEach((x,j)=>{
+    const isExit=x.L.role.includes("EXIT")||x.L.role.includes("TAKE-OUT");
+    cols+=`<td width="${w}%" style="${isExit?S.colX:S.col}">${headerCell(x.L,x.r,j,isExit)}
+      ${x.r.lines.map(l=>ln(l[0],l[1])).join('')}
+      ${x.r.key?`<div style="display:flex;justify-content:space-between;padding:6px 0 0;margin-top:6px;border-top:1px solid #dbe3ec;font-size:13px"><b>${x.r.key[0]}</b><b style="${S.ok}">${x.r.key[1]}</b></div>`:''}</td>`;
+    if(j<n-1)cols+='<td style="width:16px"></td>';
+  });
+  return `<div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#1e293b;max-width:1000px;background:#fff">
+    <div style="background:#152c4e;color:#fff;padding:12px 22px;font-weight:800;font-size:16px">ASAP FUNDING <span style="color:#7fb3d3;font-weight:400;font-size:12px;font-style:italic">&nbsp;Simply... Better Lending</span><span style="float:right;font-weight:400;font-size:12px">ASAP-Funding.com</span></div>
+    <div style="padding:16px 20px">
+      <div style="font-size:23px;font-weight:800;color:#152c4e">Your financing plan</div>
+      <div style="color:#64748b;font-size:13px;margin-bottom:14px">${addr}${(document.getElementById('spName')&&document.getElementById('spName').value)?(" · Borrower: "+document.getElementById('spName').value):""} (estimates)</div>
+      <table style="width:100%;border-collapse:separate;table-layout:fixed"><tr>${cols}</tr></table>
+      <div style="${S.sig}">Daniel Kim · Director · 510-399-2727 · Daniel@ASAP-Funding.com<br>
+      Estimated figures, subject to full underwriting, appraisal, and final approval. Not a commitment to lend.</div>
+    </div></div>`;
+}
+
+/* ---------- REFRESH ---------- */
+function refresh(){
+  const borrowerCash=parseFloat(String(document.getElementById('spCash').value).replace(/,/g,''))||0;
+  let need=0,exit=0,bridgePayoff=0,exitLeg=null,emdTotal=0;
+  const sources=[]; const onSet=[];
+  legs.forEach((L,i)=>{
+    if(!L.on)return;
+    const r=compute(i,bridgePayoff);
+    const isExit=L.role.includes("EXIT")||L.role.includes("TAKE-OUT");
+    if(r.emd)emdTotal+=r.emd;
+    if(r.cashNeed>0&&!isExit){need+=r.cashNeed;}
+    if(!isExit&&['bridge','ff','guc'].includes(L.program)){bridgePayoff=r.payoffDue||r.loan||bridgePayoff;} /* the subject short-term loan the exit refinances out — cash-out bridges too, not just purchases */
+    if(r.cashOut!==0&&r.cashOut!==undefined&&!isExit){
+      if(r.err||r.cashOut<=0) sources.push({name:L.role,amt:0,bad:r.err||"nets $0 or negative — not a usable source"});
+      else sources.push({name:L.role,amt:r.cashOut});
+    }
+    if(r.exitNet!==undefined){exit=r.exitNet;exitLeg={L,r};}
+    onSet.push({L,r});
+    const rEl=document.getElementById('in_'+i+'_rate');
+    if(rEl&&['dscr','ff','guc','bridge','cperm'].includes(L.program)&&!(L.vals.rate>0)&&r.noteRate){const showR=(['ff','guc','bridge'].includes(L.program)&&r.effRate)?r.effRate:r.noteRate;rEl.placeholder=showR.toFixed(3);}
+    const ptsEl=document.getElementById('in_'+i+'_pts');
+    const buydActR=(['ff','guc','bridge'].includes(L.program)&&(L.vals.buyd==='lowfee'||L.vals.buyd==='lowrate'));
+    if(ptsEl&&buydActR&&r.effPts!==undefined) ptsEl.placeholder=r.effPts.toFixed(2);
+    const dyEl=document.getElementById('in_'+i+'_dyMin');
+    if(dyEl&&L.program==='cperm'&&!(L.vals.dyMin>0)&&r.dyGhost) dyEl.placeholder=r.dyGhost.toFixed(1);
+    const lvEl=document.getElementById('ltv_'+i);
+    if(lvEl) lvEl.innerHTML=leverageLine(L,r);
+    const balEl=document.getElementById('in_'+i+'_bal');
+    if(balEl){
+      if(isExit&&bridgePayoff>0&&(L.purpose==='rt'||L.purpose==='co')){
+        balEl.value=fmtIn(Math.round(bridgePayoff));balEl.style.color='#94a3b8';balEl.readOnly=true;balEl.title='Auto-transferred from the prior leg payoff';
+      } else {balEl.readOnly=false;balEl.style.color='';balEl.title='';}
+    }
+    const el=document.getElementById('outs'+i);
+    if(el)el.innerHTML=r.lines.map(l=>`<div class="out"><span>${l[0]}</span><b>${l[1]}</b></div>`).join('')
+      +(r.key?`<div class="out key"><span>${r.key[0]}</span><b>${r.key[1]}</b></div>`:'')
+      +(r.warn?`<div style="font-size:11px;font-weight:700;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px;margin-top:6px">⚠ ${r.warn}</div>`:'')
+      +(r.err?`<div style="font-size:11px;font-weight:800;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 8px;margin-top:6px">✖ ${r.err}</div>`:'')
+      +(r.hint?`<div style="font-size:10.5px;color:#64748b;padding-top:5px">ℹ ${r.hint}</div>`:'')
+      +(r.hint2?`<div style="font-size:10.5px;color:#64748b;padding-top:3px">ℹ ${r.hint2}</div>`:'');
+    const list=document.getElementById('list'+i);
+    if(list){const fico=parseFloat(document.getElementById('spFico').value)||0;
+      const fits=LENDERS.filter(x=>x.progs.includes(L.program)&&fico>=x.fico&&(r.loan||1)>=x.min&&(r.loan||1)<=x.max).slice(0,3);
+      list.innerHTML=fits.length?fits.map((x,j)=>`<div class="chip${j===0?' sel':''}" onclick="this.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));this.classList.add('sel')"><div><div class="nm">${x.n}</div><div class="why">${x.why}</div></div><span class="fit">FIT</span></div>`).join(''):'<div class="chip"><div class="nm">No tracker lender fits — flag gap</div></div>';}
+  });
+  /* FUNDING WATERFALL — where the cash comes from, in order */
+  let rows='';
+  const cashApplied=Math.min(borrowerCash,need);
+  const steps=[]; /* EMD already reduced each purchase leg's cashNeed; surface as an info line */
+  steps.push({label:"Borrower's own cash applied",amt:cashApplied,neg:true});
+  if(emdTotal>0) steps.push({label:"EMD already in escrow (applied at leg)",amt:emdTotal,neg:true,emd:true,noReduce:true});
+  let remaining=Math.max(0,need-cashApplied);
+  sources.forEach(src=>{
+    if(src.bad){steps.push({label:src.name+" — "+src.bad,amt:0,neg:true,bad:true});return;}
+    const used=Math.min(src.amt,remaining);
+    steps.push({label:src.name+" net proceeds "+fmt(src.amt)+(src.amt>used?' (only '+fmt(used)+' needed)':''),amt:used,neg:true});
+    remaining-=used;
+  });
+  const multi=steps.filter(x=>!x.emd).length>1;
+  rows+=`<div class="wfrow head"><span>FUNDING WATERFALL — CASH TO CLOSE THE DEAL</span><span></span></div>`;
+  rows+=`<div class="wfrow"><span>Cash required at close${emdTotal>0?' (net of EMD)':''} (subject legs)</span><b>${fmt(need)}</b></div>`;
+  let sn=0;
+  steps.forEach((st)=>{
+    if(st.emd){ /* informational: already deducted at the leg, show without a running-total minus */
+      rows+=`<div class="wfrow sub" style="opacity:.75"><span>${st.label}</span><b>${fmt(st.amt)} ✓</b></div>`;return;
+    }
+    sn++; const numPrefix=multi?(sn+'. '):'';
+    const val=st.bad?'$0':fmt(st.amt);
+    const colored=st.bad?`<span style="color:var(--red)">${st.label}</span>`:st.label;
+    rows+=`<div class="wfrow sub"><span>${numPrefix}${colored}</span><b>−${val}</b></div>`;
+  });
+  const totalAvail=borrowerCash+sources.reduce((a,x)=>a+(x.amt||0),0);
+  const GAP_TOL=100; /* rounding residue counts as fully funded — no red when the gap is effectively $0 */
+  const funded=(remaining<=GAP_TOL);
+  rows+=`<div class="wfrow gap"><span>REMAINING GAP</span><b style="color:${funded?'var(--green)':'var(--red)'}">${fmt(Math.max(0,remaining))}</b></div>`;
+  if(funded){
+    const surplus=totalAvail-need;
+    const unusedCash=Math.max(0,borrowerCash-cashApplied); /* borrower cash the close didn't need */
+    const dealCash=Math.max(0,Math.round(surplus-unusedCash)); /* cash the deal itself generated beyond the close */
+    let fmsg='✓ FULLY FUNDED';
+    if(surplus>1000){
+      if(dealCash>1000&&unusedCash>1000) fmsg+=' — '+fmt(dealCash)+' pulled from the deal + '+fmt(unusedCash)+' of your own cash not needed = '+fmt(surplus)+' on hand after closing';
+      else if(dealCash>1000) fmsg+=' — '+fmt(dealCash)+' cash out from the deal';
+      else fmsg+=' — '+fmt(surplus)+' of your cash left over after closing';
+    }
+    rows+=`<div class="wfok">${fmsg}</div>`;
+  } else {
+    rows+=`<div class="wfshort">✖ SHORT ${fmt(remaining)} — options: raise the source-leg loan amount, add a 2nd-position gap or HELOC leg, bring more cash, or reduce the subject loan/purchase.</div>`;
+  }
+  if(exitLeg){
+    const r=exitLeg.r, isRT=exitLeg.L.purpose==='rt'||exitLeg.L.purpose==='dp';
+    const EXIT_TOL=500; /* only surface the exit when it does NOT add up — i.e. the borrower must bring meaningful cash. Otherwise leave it blank. */
+    if(exit < -EXIT_TOL){
+      if(exitLeg.L.program==='sale'){
+        rows+=`<div class="wfshort"><b>✖ EXIT (sale) shortfall:</b> the sale comes up ${fmt(-exit)} short of the payoff + selling costs — borrower must cover the difference.</div>`;
+      } else if(isRT){
+        rows+=`<div class="wfshort"><b>✖ EXIT (rate &amp; term take-out) shortfall:</b> the take-out falls ${fmt(-exit)} short of paying off the ${fmt(r.payoff||0)} bridge + costs — borrower brings the difference.</div>`;
+      } else {
+        rows+=`<div class="wfshort"><b>✖ EXIT (cash-out refi):</b> borrower brings ${fmt(-exit)} at the refi to cover payoff + costs.</div>`;
+      }
+    }
+  }
+  document.getElementById('waterfall').innerHTML=rows;
+  if(onSet.length) document.getElementById('emailPrev').innerHTML=(emailMode==='detailed')?emailDetailed(onSet):emailShort(onSet);
+  else document.getElementById('emailPrev').innerHTML='<div style="padding:20px;color:#64748b">All legs are OFF — nothing to email.</div>';
+  window.__plain=onSet.map((x,j)=>'STEP '+(j+1)+': '+PROGRAMS[x.L.program]+' '+(x.r.loan?money(x.r.loan):'')+(x.r.key?(' — '+x.r.key[0]+': '+x.r.key[1]):'')).join('\n');
+}
+function solveZero(i){
+  let payoff=0;
+  for(let j=0;j<i;j++){if(legs[j].on){const r=compute(j,0);if(['bridge','ff','guc'].includes(legs[j].program)&&!(legs[j].role.includes("EXIT")||legs[j].role.includes("TAKE-OUT")))payoff=r.payoffDue||r.loan;}} /* the subject bridge/ff/guc loan the exit pays off — cash-out or purchase */
+  const v=legs[i].vals, A=adjusters(legs[i]);
+  if(payoff<=0)payoff=(v.bal||0); /* v20: standalone take-out falls back to its own payoff balance */
+  const impound=(v.ti||0)*(parseFloat(v.impoundMo)||0); /* v20: match exit impound so it truly nets $0 */
+  const esPts=(v.rate>0)?0:0; /* ES pts fold into effPts at compute; solver uses broker pts + esc, impound as fixed */
+  const pct=((v.pts||0)+(v.apts||0)+A.dp+(v.esc||0))/100, fix=(v.uw||0)+(v.doc||0)+(v.appr||0)+(v.proc||0)+impound;
+  const L=Math.round((payoff+fix)/(1-pct));
+  legs[i].vals.want=clampToCap(i,L); render(); if(typeof saveState==="function") saveState();
+}
+async function copyEmail(){
+  const html=document.getElementById('emailPrev').innerHTML;
+  try{await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([window.__plain||''],{type:'text/plain'})})]);}
+  catch(e){await navigator.clipboard.writeText(window.__plain||'');}
+  const c=document.getElementById('cp2');c.style.display='inline';setTimeout(()=>c.style.display='none',2000);
+}
+/* ---------- v19: PASTE DEAL SCENARIO — deterministic parser (no external calls; an LLM can replace this server-side in production) ---------- */
+function pNum(s,mult){let n=parseFloat(String(s).replace(/,/g,''));if(!isFinite(n))return null;
+  if(mult){const m=String(mult).toLowerCase();if(m==='k')n*=1000;if(m==='m'||m==='mm')n*=1000000;}
+  return Math.round(n);}
+function pGrab(text,label){
+  const M='\\$?\\s*([\\d][\\d,]*(?:\\.\\d+)?)\\s*(k|m|mm)?\\b';
+  const m=text.match(new RegExp('\\b'+label+'[^\\d$%]{0,25}'+M,'i'));
+  return m?pNum(m[1],m[2]):null;}
+function parseScenario(){
+  const text=document.getElementById('dealPaste').value||'';
+  const msg=document.getElementById('parseMsg');
+  if(!text.trim()){msg.textContent='Nothing to parse — paste the deal notes first.';return;}
+  const found=[];
+  const ficoM=text.match(/(?:fico|credit(?:\s*score)?)\D{0,12}(\d{3})\b/i);
+  const fico=ficoM?parseInt(ficoM[1],10):null;
+  const pp=pGrab(text,'(?:purchase(?:\\s*price)?|buying(?:\\s*(?:it|at|for))?|under\\s*contract(?:\\s*(?:at|for))?)');
+  const rehab=pGrab(text,'(?:rehab(?:\\s*budget)?|reno(?:vation)?(?:\\s*budget)?|construction\\s*budget)');
+  const arv=pGrab(text,'(?:arv|after[-\\s]*repair(?:\\s*value)?)');
+  const rent=pGrab(text,'(?:rents?\\s*(?:at|for|of|:)|monthly\\s*rent)');
+  let cash=pGrab(text,'(?:cash(?!\\s*[- ]?out)(?:\\s*(?:on\\s*hand|available|to\\s*(?:work\\s*with|invest|close)))?|liquidity|liquid(?:\\s*(?:funds|assets))?)');
+  if(cash===null){const cm=text.match(/\$?\s*([\d][\d,]*(?:\.\d+)?)\s*(k|m|mm)?\s+(?:in\s+)?(?:cash(?!\s*[- ]?out)|liquid)/i);if(cm)cash=pNum(cm[1],cm[2]);}
+  const bal=pGrab(text,'(?:owes?|payoff|existing\\s*(?:balance|loan|debt)|current\\s*balance|mortgage\\s*balance)');
+  const val=pGrab(text,'(?:worth|as[-\\s]?is(?:\\s*value)?|current\\s*value|appraised(?:\\s*(?:at|value|for))?)');
+  const addrM=text.match(/(\d{1,6}\s+[A-Za-z0-9.'#\- ]{2,40}?\s(?:St(?:reet)?|Ave(?:nue)?|Rd|Road|Blvd|Boulevard|Dr(?:ive)?|Ln|Lane|Ct|Court|Pl(?:ace)?|Way|Ter(?:race)?|Cir(?:cle)?|Pkwy|Hwy)\.?(?:\s+(?:NE|NW|SE|SW|N|S|E|W)\b)?(?:,\s*[A-Za-z .]+)?(?:,?\s*[A-Z]{2}\b)?(?:\s*\d{5})?)/);
+  const nameM=text.match(/(?:[Bb]orrower|[Cc]lient|[Ii]nvestor|[Ss]ponsor)(?:\s+[Nn]ame)?\s*[:\-]?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})/);
+  /* target legs: subject = first ON non-exit leg; balance/value fall back to the first leg that owns the key */
+  const isExitL=L=>L.role.includes("EXIT")||L.role.includes("TAKE-OUT");
+  const subjIdx=legs.findIndex(L=>L.on&&!isExitL(L)&&L.purpose==='purchase');
+  const subj=subjIdx>=0?subjIdx:legs.findIndex(L=>L.on&&!isExitL(L));
+  const put=(idx,key,valNum,label)=>{if(valNum===null||idx<0)return;
+    if(key in legs[idx].vals){legs[idx].vals[key]=valNum;found.push(label+' '+money(valNum));}};
+  if(subj>=0){
+    put(subj,'pp',pp,'purchase');
+    put(subj,'rehab',rehab,'rehab');
+    put(subj,'arv',arv,'ARV');
+    put(subj,'rent',rent,'rent');
+    /* v20 guard: on a purchase leg, never let "as-is value" clobber an explicit purchase price */
+    if(!(pp!==null && 'pp' in legs[subj].vals)) put(subj,'val',val,'as-is value');
+    else if(val!==null && val!==pp) found.push('note: as-is value '+money(val)+' parsed but purchase price kept');
+    if(addrM){legs[subj].addr=addrM[1].trim();found.push('address');}
+  }
+  if(val!==null&&(subj<0||!('val' in legs[subj].vals))){
+    const vi=legs.findIndex(L=>L.on&&('val' in L.vals));
+    put(vi,'val',val,'as-is value');
+  }
+  if(bal!==null){
+    const bi=legs.findIndex(L=>L.on&&('bal' in L.vals));
+    put(bi,'bal',bal,'payoff balance');
+  }
+  if(fico!==null&&fico>=300&&fico<=850){document.getElementById('spFico').value=fico;found.push('FICO '+fico);}
+  if(cash!==null){document.getElementById('spCash').value=fmtIn(cash);found.push('borrower cash '+money(cash));}
+  if(nameM){document.getElementById('spName').value=nameM[1].trim();found.push('borrower name');}
+  render();
+  msg.textContent=found.length?('✓ Parsed and filled: '+found.join(' · ')+'. Review every number before quoting.'):'Nothing recognized — try labels like "purchase price $525k", "rehab $200k", "ARV $1.4M", "FICO 680", "rents at $7,400".';
+}
+document.getElementById('spFico').addEventListener('input',refresh);
+document.getElementById('spName').addEventListener('input',refresh);
+document.getElementById('spCash').addEventListener('input',refresh);
+/* ---------- PREFERRED LAYOUT + NOTES (persist across visits when opened locally) ---------- */
+const SKEY='asapSandboxState';
+window.__lastHpSig=window.__lastHpSig||''; /* signature of the deal Leg B was last filled from, so a reopen of the same deal doesn't clobber saved edits */
+function snapshot(){
+  return JSON.stringify({
+    preset:document.getElementById('preset').value,
+    legs:legs, mode:emailMode,
+    spName:document.getElementById('spName').value,
+    spFico:document.getElementById('spFico').value,
+    spCash:document.getElementById('spCash').value,
+    split:document.getElementById('splitView').checked,
+    hpSig:window.__lastHpSig||'',
+    pref:true});
+}
+window.__dealKey=window.__dealKey||'__default';
+function saveState(){
+  if(!document.getElementById('prefLayout').checked)return;
+  var snap=snapshot();
+  try{localStorage.setItem(SKEY+'_'+(window.__dealKey||'__default'),snap);}catch(e){window.__memState=snap;}
+  if(window.__saveTimer)clearTimeout(window.__saveTimer);
+  window.__saveTimer=setTimeout(function(){
+    try{ if(window.google&&google.script&&google.script.run){ google.script.run.withFailureHandler(function(){}).pipeline_saveCreativeLayout(window.__dealKey||'__default',snap); } }catch(e){}
+  },1500);
+}
+function localRaw_(dealKey){ try{ return localStorage.getItem(SKEY+'_'+(dealKey||'__default'))||localStorage.getItem(SKEY)||null; }catch(e){ return window.__memState||null; } }
+function restoreFromJson(raw){
+  if(!raw)return false;
+  try{
+    const st=JSON.parse(raw);
+    window.__lastHpSig=st.hpSig||'';
+    document.getElementById('preset').value=st.preset;
+    legs=st.legs; emailMode=st.mode||'short';
+    document.getElementById('spName').value=st.spName||'';
+    document.getElementById('spFico').value=st.spFico||665;
+    document.getElementById('spCash').value=st.spCash||40000;
+    document.getElementById('prefLayout').checked=true;
+    if(st.split){document.getElementById('splitView').checked=true;toggleSplit();}
+    render();
+    return true;
+  }catch(e){return false;}
+}
+function togglePref(){
+  const on=document.getElementById('prefLayout').checked;
+  if(on){saveState();}
+  else{
+    try{localStorage.removeItem(SKEY+'_'+(window.__dealKey||'__default'));localStorage.removeItem(SKEY);}catch(e){window.__memState=null;}
+    try{ if(window.google&&google.script&&google.script.run){ google.script.run.withFailureHandler(function(){}).pipeline_saveCreativeLayout(window.__dealKey||'__default',''); } }catch(e){}
+  }
+}
+/* v19: split view — inputs left, sticky live email preview right; every keystroke updates the email */
+function toggleSplit(){
+  const on=document.getElementById('splitView').checked;
+  document.getElementById('mainWrap').classList.toggle('split',on);
+  const b=document.getElementById('tab0'), t=document.getElementById('emailToggle');
+  if(on&&b.style.display==='none'){b.style.display='block';t.innerHTML='▾ BORROWER EMAIL (SHORT / DETAILED) — LIVE PREVIEW';refresh();}
+  if(!on)t.innerHTML=(b.style.display==='none'?'▸':'▾')+' BORROWER EMAIL (SHORT / DETAILED) — CLICK TO '+(b.style.display==='none'?'EXPAND':'COLLAPSE');
+  saveState();
+}
+/* auto-save on any change while preferred is checked */
+document.addEventListener('input',()=>saveState());
+document.addEventListener('change',()=>saveState());
+
+applyPreset(); /* default shown while the durable server layout loads */
+
+/* ===== HANDOFF RECEIVER: fill Leg B (subject) from the calculator via ?creative=1&hp=... ===== */
+function applyHandoff(hp){
+  try{
+    var data=JSON.parse(hp); if(!data||typeof data!=='object') return;
+    var bi=-1; for(var i=0;i<legs.length;i++){ if(legs[i].role&&String(legs[i].role).indexOf('SUBJECT')>=0){ bi=i; break; } }
+    if(bi<0) bi=(legs.length>=2?1:0);
+    var L=legs[bi];
+    var prog=data.program||L.program, pur=data.purpose||L.purpose, prop=data.prop||L.prop, occ=data.occ||L.occ;
+    var ov={want:0};
+    ['pp','rehab','arv','val','rent','ti','noi','bal','pts','apts','esc','uw','doc','appr','proc'].forEach(function(k){
+      if(data[k]!=null&&data[k]!==''&&isFinite(data[k])) ov[k]=Number(data[k]);
+    });
+    var fresh=makeLeg(L.role, (data.addr||L.addr), pur, prog, prop, occ, true, ov);
+    if(data.state){ fresh.state=data.state;
+      if(ov.ti==null && typeof autoTI==='function'){ var a=autoTI(data.state, ov.val||ov.pp||fresh.vals.val||0); if(a!=null){ fresh.vals.ti=a; fresh.tiAuto=true; } }
+      else { fresh.tiTouched=true; fresh.tiAuto=false; }
+    }
+    legs[bi]=fresh;
+    if(data.name){ var ne=document.getElementById('spName'); if(ne) ne.value=data.name; }
+    if(data.fico!=null&&data.fico!==''){ var fe=document.getElementById('spFico'); if(fe) fe.value=String(data.fico); }
+    if(data.exp){ var ee=document.getElementById('spExp'); if(ee) ee.value=String(data.exp); }
+    if(typeof render==='function') render();
+    if(typeof saveState==='function') saveState();
+  }catch(e){}
+}
+(function(){
+  function readHp(cb){
+    try{ if(window.google&&google.script&&google.script.url&&google.script.url.getLocation){ google.script.url.getLocation(function(loc){ cb((loc&&loc.parameter&&loc.parameter.hp)||''); }); return; } }catch(e){}
+    try{ var m=/[?&]hp=([^&]+)/.exec(window.location.search||window.location.hash||''); cb(m?decodeURIComponent(m[1].replace(/\+/g,' ')):''); }catch(e2){ cb(''); }
+  }
+  function hpSig(hp){ try{ var d=JSON.parse(hp); var a=String(d.addr||'').toLowerCase().replace(/\s+/g,' ').trim(); return a || [d.program,d.pp||d.val||0,d.rehab||0,d.arv||0].join('|'); }catch(e){ return String(hp); } }
+  function boot(){ if(typeof legs==='undefined'||typeof makeLeg!=='function'){ setTimeout(boot,100); return; }
+    readHp(function(hp){
+      var dealKey = hp ? hpSig(hp) : '__default';
+      window.__dealKey = dealKey;
+      function decide(serverRaw){
+        if(serverRaw){ restoreFromJson(serverRaw); return; }                 /* durable layout for this deal -> restore it */
+        var local=localRaw_(dealKey), localForThisDeal=false;
+        if(local){ try{ var st=JSON.parse(local); localForThisDeal=(!hp)||(hpSig(hp)===(st.hpSig||'')); }catch(e){} }
+        if(local && localForThisDeal){ restoreFromJson(local); saveState(); return; }  /* offline cache for same deal -> restore + push to server */
+        if(hp){ applyPreset(); applyHandoff(hp); window.__lastHpSig=hpSig(hp); saveState(); }  /* genuinely new deal -> fill Leg B, everything else fresh */
+      }
+      var asked=false;
+      try{ if(window.google&&google.script&&google.script.run){ google.script.run.withSuccessHandler(function(raw){ decide(raw||''); }).withFailureHandler(function(){ decide(''); }).pipeline_getCreativeLayout(dealKey); asked=true; } }catch(e){}
+      if(!asked) decide('');
+    });
+  }
+  if(document.readyState==='loading') window.addEventListener('load',function(){ setTimeout(boot,80); }); else setTimeout(boot,80);
+})();
+</script>
+</body>
+</html>

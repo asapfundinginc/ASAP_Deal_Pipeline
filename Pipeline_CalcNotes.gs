@@ -5,14 +5,6 @@
  * vanished hours later. Notes now also persist to a CalcNotes column on
  * Pipeline_Deals (self-created) and restore from there on load.
  *
- * 2026-07 UPGRADE (notes protection layer):
- *   1. An EMPTY payload never overwrites saved notes (unless the client marks
- *      a deliberate clear with clr:1) — no UI regression can wipe notes again.
- *   2. Every non-empty save is ALSO appended to a hidden NotesBackup tab
- *      (newest 20 versions per deal) before the live cell is touched.
- *   3. Loading self-heals: a blank live cell is restored from the newest backup.
- *   4. Pipeline_restoreCalcNotes powers the calculator's "Restore backup" button.
- *
  * Keyed the same way the calculator keys deals: SourceURL, or 'id:<DealID>'.
  * Depends on M1: ss_(), ASAP_CFG.
  *****************************************************************************/
@@ -45,65 +37,9 @@ function Pipeline_saveCalcNotes(dealKey, json) {
     if (!hit) return { ok: false, error: 'Deal not found for key.' };
     var s = String(json == null ? '' : json);
     if (s.length > 45000) s = s.slice(0, 45000);   // stay under the 50k cell limit
-
-    /* SERVER-SIDE GUARD (permanent): an EMPTY notes payload never overwrites a
-       non-empty saved copy unless the client explicitly marks it as a user
-       clear (clr:1). This survives any future UI change or regression. */
-    function _cn_isEmpty_(j) {
-      if (!j) return true;
-      try {
-        var o = JSON.parse(j);
-        if (o && o.__n != null) return String(o.h || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim() === '';
-      } catch (e) {}
-      return String(j).trim() === '';
-    }
-    function _cn_isClear_(j) { try { var o = JSON.parse(j); return !!(o && o.clr); } catch (e) { return false; } }
-    var cell = sh.getRange(hit.rowIdx + 1, hit.H.indexOf('CalcNotes') + 1);
-    var existing = String(cell.getValue() || '');
-    if (_cn_isEmpty_(s) && !_cn_isClear_(s) && !_cn_isEmpty_(existing)) {
-      return { ok: true, kept: true };   // refused blank overwrite — existing notes preserved
-    }
-    if (!_cn_isEmpty_(s)) { try { _cn_backup_(dealKey, s); } catch (eB) {} }  // append-only history FIRST
-    cell.setValue(s);
+    sh.getRange(hit.rowIdx + 1, hit.H.indexOf('CalcNotes') + 1).setValue(s);
     return { ok: true };
   } catch (err) { return { ok: false, error: String(err) }; }
-}
-
-/* ---- NotesBackup: append-only history tab. Never edited, only grown
- * (trimmed to the newest 20 versions per deal). UI changes can NEVER
- * touch this — it is the permanent safety copy of every note ever saved. */
-function _cn_backupSheet_() {
-  var ss = ss_(), sh = ss.getSheetByName('NotesBackup');
-  if (!sh) {
-    sh = ss.insertSheet('NotesBackup');
-    sh.getRange(1, 1, 1, 3).setValues([['SavedAt', 'DealKey', 'NotesJson']]).setFontWeight('bold');
-    try { sh.hideSheet(); } catch (e) {}
-  }
-  return sh;
-}
-function _cn_backup_(dealKey, json) {
-  var sh = _cn_backupSheet_();
-  sh.appendRow([new Date(), String(dealKey || ''), String(json || '')]);
-  // trim: keep only the newest 20 versions for this deal
-  try {
-    var vals = sh.getDataRange().getValues(), rows = [];
-    for (var r = 1; r < vals.length; r++) { if (String(vals[r][1]) === String(dealKey)) rows.push(r + 1); }
-    if (rows.length > 20) {
-      var extra = rows.length - 20;
-      for (var i = extra - 1; i >= 0; i--) sh.deleteRow(rows[i]); // delete largest index first — no row-shift issues
-    }
-  } catch (e) {}
-}
-function _cn_latestBackup_(dealKey) {
-  try {
-    var sh = ss_().getSheetByName('NotesBackup');
-    if (!sh) return '';
-    var vals = sh.getDataRange().getValues();
-    for (var r = vals.length - 1; r >= 1; r--) {
-      if (String(vals[r][1]) === String(dealKey) && String(vals[r][2] || '').trim() !== '') return String(vals[r][2]);
-    }
-  } catch (e) {}
-  return '';
 }
 
 function Pipeline_getCalcNotes(dealKey) {
@@ -114,25 +50,9 @@ function Pipeline_getCalcNotes(dealKey) {
     var hit = _cn_row_(sh, dealKey);
     if (!hit) return '';
     var ci = hit.H.indexOf('CalcNotes');
-    if (ci < 0) return _cn_latestBackup_(dealKey);
-    var live = String(sh.getRange(hit.rowIdx + 1, ci + 1).getValue() || '');
-    // AUTO-FALLBACK: live copy missing/blank -> serve (and self-heal from) the newest backup
-    var liveEmpty = true;
-    try { var o = JSON.parse(live); liveEmpty = !live || String((o && o.h) || '').replace(/<[^>]*>/g, '').trim() === ''; } catch (e) { liveEmpty = String(live).trim() === ''; }
-    if (liveEmpty) {
-      var bak = _cn_latestBackup_(dealKey);
-      if (bak) { try { sh.getRange(hit.rowIdx + 1, ci + 1).setValue(bak); } catch (e2) {} return bak; }
-    }
-    return live;
+    if (ci < 0) return '';
+    return String(sh.getRange(hit.rowIdx + 1, ci + 1).getValue() || '');
   } catch (err) { return ''; }
-}
-
-/* Restores a deal's newest backed-up notes into the live CalcNotes cell.
- * Powers the calculator's "Restore backup" button (relayed by the dashboard). */
-function Pipeline_restoreCalcNotes(dealKey) {
-  var bak = _cn_latestBackup_(dealKey);
-  if (!bak) return { ok: false, error: 'No backup found for this deal.' };
-  return Pipeline_saveCalcNotes(dealKey, bak);
 }
 
 /* ---- Per-deal Google Drive folder (auto-created, auto-linked) ----
@@ -329,32 +249,64 @@ function pipeline_saveBorrowerPhone(dealId, phone) {
 /* ---- Borrower-notes feed (the "Notes" box in Key Metrics & Call Sheet) ----
  * Saved the instant a note is added or deleted, in its own OncallNotes column.
  * Independent of the calc-inputs autosave, so no restore-timing race can wipe it. */
+/* Dedicated keyed store: notes keyed by the RAW deal key on their own tab, so they never
+   depend on matching a Pipeline_Deals row (the silent-failure that made notes vanish). */
+function _oc_store_sheet_() {
+  var ss = ss_();
+  var sh = ss.getSheetByName('OncallStore');
+  if (!sh) { sh = ss.insertSheet('OncallStore'); sh.getRange(1, 1, 1, 3).setValues([['DealKey', 'Notes', 'Updated']]).setFontWeight('bold'); }
+  return sh;
+}
 function Pipeline_saveOncallNotes(dealKey, text) {
+  var savedOk = false;
+  var s = String(text == null ? '' : text); if (s.length > 45000) s = s.slice(0, 45000);
+  /* 1) DURABLE keyed store — keyed by the raw deal key, so it NEVER needs a Pipeline_Deals row. */
   try {
-    if (!dealKey) return { ok: false };
-    var sh = ss_().getSheetByName(ASAP_CFG.DEALS_TAB);
-    if (!sh) return { ok: false };
-    var lastCol = sh.getLastColumn();
-    var H0 = sh.getRange(1, 1, 1, lastCol).getValues()[0];
-    if (H0.indexOf('OncallNotes') < 0) { lastCol++; sh.getRange(1, lastCol).setValue('OncallNotes').setFontWeight('bold'); }
-    var hit = _cn_row_(sh, dealKey);
-    if (!hit) return { ok: false };
-    var s = String(text == null ? '' : text);
-    if (s.length > 45000) s = s.slice(0, 45000);
-    sh.getRange(hit.rowIdx + 1, hit.H.indexOf('OncallNotes') + 1).setValue(s);
-    return { ok: true };
-  } catch (err) { return { ok: false }; }
+    if (dealKey) {
+      var k = String(dealKey).trim();
+      var sh = _oc_store_sheet_();
+      var vals = sh.getDataRange().getValues();
+      var rowIdx = -1;
+      for (var r = 1; r < vals.length; r++) { if (String(vals[r][0]).trim() === k) { rowIdx = r + 1; break; } }
+      if (rowIdx < 0) { rowIdx = sh.getLastRow() + 1; sh.getRange(rowIdx, 1).setValue(dealKey); }
+      sh.getRange(rowIdx, 2).setValue(s);
+      sh.getRange(rowIdx, 3).setValue(new Date());
+      savedOk = true;
+    }
+  } catch (e) {}
+  /* 2) Mirror to the OncallNotes column when the deal row matches (keeps notes visible on the row). */
+  try {
+    if (dealKey) {
+      var sh2 = ss_().getSheetByName(ASAP_CFG.DEALS_TAB);
+      if (sh2) {
+        var lastCol = sh2.getLastColumn();
+        var H0 = sh2.getRange(1, 1, 1, lastCol).getValues()[0];
+        if (H0.indexOf('OncallNotes') < 0) { lastCol++; sh2.getRange(1, lastCol).setValue('OncallNotes').setFontWeight('bold'); }
+        var hit = _cn_row_(sh2, dealKey);
+        if (hit) sh2.getRange(hit.rowIdx + 1, hit.H.indexOf('OncallNotes') + 1).setValue(s);
+      }
+    }
+  } catch (e) {}
+  return { ok: savedOk };
 }
 function Pipeline_getOncallNotes(dealKey) {
+  if (!dealKey) return '';
+  /* 1) DURABLE keyed store first (authoritative — always keyed by the raw deal key). */
   try {
-    if (!dealKey) return '';
-    var sh = ss_().getSheetByName(ASAP_CFG.DEALS_TAB);
-    if (!sh) return '';
-    var hit = _cn_row_(sh, dealKey);
+    var k = String(dealKey).trim();
+    var sh = _oc_store_sheet_();
+    var vals = sh.getDataRange().getValues();
+    for (var r = 1; r < vals.length; r++) { if (String(vals[r][0]).trim() === k) return String(vals[r][1] || ''); }
+  } catch (e) {}
+  /* 2) Legacy fallback: notes saved to the OncallNotes column before this fix. */
+  try {
+    var sh2 = ss_().getSheetByName(ASAP_CFG.DEALS_TAB);
+    if (!sh2) return '';
+    var hit = _cn_row_(sh2, dealKey);
     if (!hit) return '';
     var ci = hit.H.indexOf('OncallNotes');
     if (ci < 0) return '';
-    return String(sh.getRange(hit.rowIdx + 1, ci + 1).getValue() || '');
+    return String(sh2.getRange(hit.rowIdx + 1, ci + 1).getValue() || '');
   } catch (err) { return ''; }
 }
 
@@ -375,4 +327,28 @@ function Pipeline_saveLoanAmount(dealKey, amt) {
     try { if (typeof PL_cacheBust_ === 'function') PL_cacheBust_(); } catch (e) {}
     return { ok: true };
   } catch (err) { return { ok: false }; }
+}
+
+
+/* ---- Instant-calculator relay: Google's page wrapper blocks direct frame
+   messaging, so the hub and the embedded dashboard talk via these tiny
+   cache signals instead (sub-second round trips). ---- */
+function pipeline_embedReadyPing() {
+  try { CacheService.getScriptCache().put('EMB_READY', '1', 10); } catch (e) {}
+  return true;
+}
+function pipeline_embedReadyCheck() {
+  try { return CacheService.getScriptCache().get('EMB_READY') === '1'; } catch (e) { return false; }
+}
+function pipeline_embedOpenSet(dealId) {
+  try { CacheService.getScriptCache().put('EMB_OPEN', String(dealId || ''), 30); } catch (e) {}
+  return true;
+}
+function pipeline_embedOpenTake() {
+  try {
+    var c = CacheService.getScriptCache();
+    var id = c.get('EMB_OPEN') || '';
+    if (id) c.remove('EMB_OPEN');
+    return id;
+  } catch (e) { return ''; }
 }
